@@ -1,0 +1,58 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+m<-lmer(scale(eval) ~ confidence + confidence2 + ( 1 | subID ) + ( 1 | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(eval) ~ confidence*COND + ( confidence | subID ) + ( 1 | traits), data=longDf)
+summary(m)
+ggpredict(m, c("confidence","COND")) %>% plot()
+
+m<-lmer(scale(eval) ~ confidence*valence + ( confidence + valence | subID ) + ( 1 | traits), data=longDf)
+summary(m)
+ggpredict(m, c("confidence","valence")) %>% plot()
+
+m<-lmer(eval ~ poly(confidence,2,raw=FALSE) + ( poly(confidence,2,raw=FALSE) | subID ) + ( 1 | traits), data=longDf)
+summary(m)
+library(ggeffects)
+ggpredict(m, c("confidence")) %>% plot()
+```
+
+```{r}
+m<-lmer(scale(confidence) ~ COND + ( 1 | subID ) + ( COND | traits), data=longDf)
+summary(m)
+ggpredict(m, c("CCOND")) %>% plot()
+
+m<-lmer(scale(confidence) ~ COND * outDegree + ( 1 | subID ) + ( COND | traits), data=longDf)
+summary(m)
+ggpredict(m, c("outDegree","COND")) %>% plot()
+```
+
+```{r}
+m<-lmer(scale(confidence) ~ COND + ( 1 | subID ) + ( COND | traits), data=longDf)
+summary(m)
+ggpredict(m, c("outDegree","COND")) %>% plot()
+```
+
+
+```{r}
+m <- lm(scale(Race_Id) ~ COND, data = rawDf)
+summary(m)
+
+m <- lm(scale(Gender_Id) ~ COND, data = rawDf)
+summary(m)
+
+m <- lm(Sexual_Id ~ COND, data = rawDf)
+summary(m)
+
+m <- lm(Political_Id ~ COND, data = rawDf)
+summary(m)
+
+m <- lm(Student_Id ~ COND, data = rawDf)
+summary(m)
+```
+

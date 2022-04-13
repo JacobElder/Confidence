@@ -1,0 +1,54 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+rawDf <- read.csv("./input/confRaw.csv")
+posTraits <- read.csv("~/Google Drive/Volumes/Research Project/Trait Network_Behaviral/generating network/output/allPosCents.csv")
+
+negTraits <- read.csv("~/Google Drive/Volumes/Research Project/Trait Network_Behaviral/generating network/output/allNegCents.csv")
+allTraits<-rbind(posTraits,negTraits)
+colnames(allTraits)[colnames(allTraits)=="trait"] <- "traits"
+```
+
+```{r}
+rawDf <- rawDf %>% rename(subID = id)
+```
+
+```{r}
+rawDf <- rawDf %>% filter(Usable == 1 & ConDeb == 1)
+```
+
+
+```{r}
+traitsSubset <- rawDf %>% select(subID, Accurate_1:Worrier_2)
+confTraits <- traitsSubset %>% select("subID", ends_with("_2"))
+confTraits<-pivot_longer(confTraits, cols=Accurate_2:Worrier_2, names_to = c("traits"), values_to = "confidence", names_repair = "unique")
+confTraits$traits <- gsub("_2","",confTraits$traits)
+
+evalTraits <- traitsSubset %>% select("subID", ends_with("_1"))
+evalTraits<-pivot_longer(evalTraits, cols=Accurate_1:Worrier_1, names_to = c("traits"), values_to = "eval", names_repair = "unique")
+evalTraits$traits <- gsub("_1","",evalTraits$traits)
+
+longDf <- merge(confTraits, evalTraits, by = c("subID","traits"))
+longDf$confidence2 <- longDf$confidence^2
+longDf <- longDf[!is.na(longDf$confidence),]
+```
+
+```{r}
+rawDf$CCOND <- ifelse(rawDf$COND=="CONT","CONT","UNC")
+longDf <- rawDf %>% select(subID,COND,CCOND,Race_Id:Student_Id) %>% right_join(longDf, by = "subID")
+
+longDf <- longDf %>% left_join(allTraits, by = "traits")
+```
+
+
+
+
+
+
