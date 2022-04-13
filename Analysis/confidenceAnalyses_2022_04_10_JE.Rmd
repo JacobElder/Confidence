@@ -58,7 +58,7 @@ ggpredict(m, c("outDegree","COND")) %>% plot()
 ```
 
 ```{r}
-m<-lmer(scale(confidence) ~ COND + ( 1 | subID ) + ( COND | traits), data=longDf)
+m<-lmer(scale(confidence) ~ COND + valence  + scale(eval) + ( 1 | subID ) + ( COND | traits), data=longDf)
 summary(m)
 ggpredict(m, c("outDegree","COND")) %>% plot()
 ```
