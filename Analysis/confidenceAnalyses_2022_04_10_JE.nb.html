@@ -1749,6 +1749,89 @@ pre code {
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<div id="centrality-predicts-confidence" class="section level1">
+<h1>Centrality Predicts Confidence</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShtKVxuXG5gYGAifQ== -->
+<pre class="r"><code>summary(m)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiTGluZWFyIG1peGVkIG1vZGVsIGZpdCBieSBSRU1MLiB0LXRlc3RzIHVzZSBTYXR0ZXJ0aHdhaXRlJ3MgbWV0aG9kIFsnbG1lck1vZExtZXJUZXN0J11cbkZvcm11bGE6IHNjYWxlKGNvbmZpZGVuY2UpIH4gc2NhbGUoaW5EZWdyZWUpICsgKHNjYWxlKGluRGVncmVlKSB8IHN1YklEKSArICAgICAgKDEgfCB0cmFpdHMpXG4gICBEYXRhOiBsb25nRGZcblxuUkVNTCBjcml0ZXJpb24gYXQgY29udmVyZ2VuY2U6IDEzNzM1LjhcblxuU2NhbGVkIHJlc2lkdWFsczogXG4gICAgTWluICAgICAgMVEgIE1lZGlhbiAgICAgIDNRICAgICBNYXggXG4tNC4wNzg0IC0wLjU5NzMgLTAuMTAwNyAgMC42MjQ5ICAzLjUzMTYgXG5cblJhbmRvbSBlZmZlY3RzOlxuIEdyb3VwcyAgIE5hbWUgICAgICAgICAgICBWYXJpYW5jZSAgU3RkLkRldi4gQ29yclxuIHRyYWl0cyAgIChJbnRlcmNlcHQpICAgICAwLjAxOTA1MTQgMC4xMzgwMyAgICAgIFxuIHN1YklEICAgIChJbnRlcmNlcHQpICAgICAwLjMyNzg2MzcgMC41NzI1OSAgICAgIFxuICAgICAgICAgIHNjYWxlKGluRGVncmVlKSAwLjAwMDc0ODggMC4wMjczNiAgMC4wMFxuIFJlc2lkdWFsICAgICAgICAgICAgICAgICAwLjY2MjA1MTggMC44MTM2NyAgICAgIFxuTnVtYmVyIG9mIG9iczogNTUzNCwgZ3JvdXBzOiAgdHJhaXRzLCAyNjY7IHN1YklELCA0MlxuXG5GaXhlZCBlZmZlY3RzOlxuICAgICAgICAgICAgICAgIEVzdGltYXRlIFN0ZC4gRXJyb3IgICAgICAgZGYgdCB2YWx1ZSBQcig+fHR8KVxuKEludGVyY2VwdCkgICAgIC0wLjAxMjIzICAgIDAuMDg5NDMgNDEuNzM1NDcgIC0wLjEzNyAgICAwLjg5Mlxuc2NhbGUoaW5EZWdyZWUpICAwLjAxNzkzICAgIDAuMDE0NDYgNzAuNTQ0NjAgICAxLjI0MCAgICAwLjIxOVxuXG5Db3JyZWxhdGlvbiBvZiBGaXhlZCBFZmZlY3RzOlxuICAgICAgICAgICAgKEludHIpXG5zY2FsZShuRGdyKSAwLjAwMSBcbiJ9 -->
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [&#39;lmerModLmerTest&#39;]
+Formula: scale(confidence) ~ scale(inDegree) + (scale(inDegree) | subID) +      (1 | traits)
+   Data: longDf
+
+REML criterion at convergence: 13735.8
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-4.0784 -0.5973 -0.1007  0.6249  3.5316 
+
+Random effects:
+ Groups   Name            Variance  Std.Dev. Corr
+ traits   (Intercept)     0.0190514 0.13803      
+ subID    (Intercept)     0.3278637 0.57259      
+          scale(inDegree) 0.0007488 0.02736  0.00
+ Residual                 0.6620518 0.81367      
+Number of obs: 5534, groups:  traits, 266; subID, 42
+
+Fixed effects:
+                Estimate Std. Error       df t value Pr(&gt;|t|)
+(Intercept)     -0.01223    0.08943 41.73547  -0.137    0.892
+scale(inDegree)  0.01793    0.01446 70.54460   1.240    0.219
+
+Correlation of Fixed Effects:
+            (Intr)
+scale(nDgr) 0.001 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="extreme-responses" class="section level1">
+<h1>Extreme Responses</h1>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShtKVxuXG5gYGAifQ== -->
+<pre class="r"><code>summary(m)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiTGluZWFyIG1peGVkIG1vZGVsIGZpdCBieSBSRU1MLiB0LXRlc3RzIHVzZSBTYXR0ZXJ0aHdhaXRlJ3MgbWV0aG9kIFsnbG1lck1vZExtZXJUZXN0J11cbkZvcm11bGE6IHNjYWxlKGV2YWxNaWQpIH4gc2NhbGUoY29uZmlkZW5jZSkgKyAoc2NhbGUoY29uZmlkZW5jZSkgfCBzdWJJRCkgKyAgICAgICgxIHwgdHJhaXRzKVxuICAgRGF0YTogbG9uZ0RmXG5cblJFTUwgY3JpdGVyaW9uIGF0IGNvbnZlcmdlbmNlOiAxNjQ4NS45XG5cblNjYWxlZCByZXNpZHVhbHM6IFxuICAgIE1pbiAgICAgIDFRICBNZWRpYW4gICAgICAzUSAgICAgTWF4IFxuLTIuNTE0MyAtMC43MzAxIC0wLjA4OTggIDAuNjA1MiAgMy40MjMzIFxuXG5SYW5kb20gZWZmZWN0czpcbiBHcm91cHMgICBOYW1lICAgICAgICAgICAgICBWYXJpYW5jZSBTdGQuRGV2LiBDb3JyXG4gdHJhaXRzICAgKEludGVyY2VwdCkgICAgICAgMC4wMzgzOSAgMC4xOTU5ICAgICAgIFxuIHN1YklEICAgIChJbnRlcmNlcHQpICAgICAgIDAuMDQzODQgIDAuMjA5NCAgICAgICBcbiAgICAgICAgICBzY2FsZShjb25maWRlbmNlKSAwLjAzMzAzICAwLjE4MTcgICAwLjEwXG4gUmVzaWR1YWwgICAgICAgICAgICAgICAgICAgMC44MDQ0NiAgMC44OTY5ICAgICAgIFxuTnVtYmVyIG9mIG9iczogNjE1MSwgZ3JvdXBzOiAgdHJhaXRzLCAyOTY7IHN1YklELCA0MlxuXG5GaXhlZCBlZmZlY3RzOlxuICAgICAgICAgICAgICAgICAgRXN0aW1hdGUgU3RkLiBFcnJvciAgICAgICBkZiB0IHZhbHVlIFByKD58dHwpICAgIFxuKEludGVyY2VwdCkgICAgICAgIDAuMDMxMjEgICAgMC4wMzY5NyA0OC45NjE1MSAgIDAuODQ0ICAgIDAuNDAzICAgIFxuc2NhbGUoY29uZmlkZW5jZSkgIDAuMjk3NTYgICAgMC4wMzE5NSAzOC4wNDI1NCAgIDkuMzE0IDIuMzVlLTExICoqKlxuLS0tXG5TaWduaWYuIGNvZGVzOiAgMCDigJgqKirigJkgMC4wMDEg4oCYKirigJkgMC4wMSDigJgq4oCZIDAuMDUg4oCYLuKAmSAwLjEg4oCYIOKAmSAxXG5cbkNvcnJlbGF0aW9uIG9mIEZpeGVkIEVmZmVjdHM6XG4gICAgICAgICAgICAoSW50cilcbnNjbChjbmZkbmMpIDAuMDcxIFxuIn0= -->
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [&#39;lmerModLmerTest&#39;]
+Formula: scale(evalMid) ~ scale(confidence) + (scale(confidence) | subID) +      (1 | traits)
+   Data: longDf
+
+REML criterion at convergence: 16485.9
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.5143 -0.7301 -0.0898  0.6052  3.4233 
+
+Random effects:
+ Groups   Name              Variance Std.Dev. Corr
+ traits   (Intercept)       0.03839  0.1959       
+ subID    (Intercept)       0.04384  0.2094       
+          scale(confidence) 0.03303  0.1817   0.10
+ Residual                   0.80446  0.8969       
+Number of obs: 6151, groups:  traits, 296; subID, 42
+
+Fixed effects:
+                  Estimate Std. Error       df t value Pr(&gt;|t|)    
+(Intercept)        0.03121    0.03697 48.96151   0.844    0.403    
+scale(confidence)  0.29756    0.03195 38.04254   9.314 2.35e-11 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Correlation of Fixed Effects:
+            (Intr)
+scl(cnfdnc) 0.071 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubTwtbG1lcihzY2FsZShldmFsKSB+IGNvbmZpZGVuY2UgKyBjb25maWRlbmNlMiArICggMSB8IHN1YklEICkgKyAoIDEgfCB0cmFpdHMpLCBkYXRhPWxvbmdEZilcbnN1bW1hcnkobSlcblxubTwtbG1lcihzY2FsZShldmFsKSB+IGNvbmZpZGVuY2UqQ09ORCArICggY29uZmlkZW5jZSB8IHN1YklEICkgKyAoIDEgfCB0cmFpdHMpLCBkYXRhPWxvbmdEZilcbnN1bW1hcnkobSlcbmdncHJlZGljdChtLCBjKFwiY29uZmlkZW5jZVwiLFwiQ09ORFwiKSkgJT4lIHBsb3QoKVxuXG5tPC1sbWVyKHNjYWxlKGV2YWwpIH4gY29uZmlkZW5jZSp2YWxlbmNlICsgKCBjb25maWRlbmNlICsgdmFsZW5jZSB8IHN1YklEICkgKyAoIDEgfCB0cmFpdHMpLCBkYXRhPWxvbmdEZilcbnN1bW1hcnkobSlcbmdncHJlZGljdChtLCBjKFwiY29uZmlkZW5jZVwiLFwidmFsZW5jZVwiKSkgJT4lIHBsb3QoKVxuXG5tPC1sbWVyKGV2YWwgfiBwb2x5KGNvbmZpZGVuY2UsMixyYXc9RkFMU0UpICsgKCBwb2x5KGNvbmZpZGVuY2UsMixyYXc9RkFMU0UpIHwgc3ViSUQgKSArICggMSB8IHRyYWl0cyksIGRhdGE9bG9uZ0RmKVxuc3VtbWFyeShtKVxubGlicmFyeShnZ2VmZmVjdHMpXG5nZ3ByZWRpY3QobSwgYyhcImNvbmZpZGVuY2VcIikpICU+JSBwbG90KClcbmBgYCJ9 -->
 <pre class="r"><code>m&lt;-lmer(scale(eval) ~ confidence + confidence2 + ( 1 | subID ) + ( 1 | traits), data=longDf)
 summary(m)
@@ -1770,24 +1853,86 @@ ggpredict(m, c(&quot;confidence&quot;)) %&gt;% plot()</code></pre>
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubTwtbG1lcihzY2FsZShjb25maWRlbmNlKSB+IENPTkQgKyAoIDEgfCBzdWJJRCApICsgKCBDT05EIHwgdHJhaXRzKSwgZGF0YT1sb25nRGYpXG5zdW1tYXJ5KG0pXG5nZ3ByZWRpY3QobSwgYyhcIkNDT05EXCIpKSAlPiUgcGxvdCgpXG5cbm08LWxtZXIoc2NhbGUoY29uZmlkZW5jZSkgfiBDT05EICogb3V0RGVncmVlICsgKCAxIHwgc3ViSUQgKSArICggQ09ORCB8IHRyYWl0cyksIGRhdGE9bG9uZ0RmKVxuc3VtbWFyeShtKVxuZ2dwcmVkaWN0KG0sIGMoXCJvdXREZWdyZWVcIixcIkNPTkRcIikpICU+JSBwbG90KClcbmBgYCJ9 -->
-<pre class="r"><code>m&lt;-lmer(scale(confidence) ~ COND + ( 1 | subID ) + ( COND | traits), data=longDf)
-summary(m)
-ggpredict(m, c(&quot;CCOND&quot;)) %&gt;% plot()
-
-m&lt;-lmer(scale(confidence) ~ COND * outDegree + ( 1 | subID ) + ( COND | traits), data=longDf)
-summary(m)
-ggpredict(m, c(&quot;outDegree&quot;,&quot;COND&quot;)) %&gt;% plot()</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShtKVxuXG5gYGAifQ== -->
+<pre class="r"><code>summary(m)
+</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiTGluZWFyIG1peGVkIG1vZGVsIGZpdCBieSBSRU1MLiB0LXRlc3RzIHVzZSBTYXR0ZXJ0aHdhaXRlJ3MgbWV0aG9kIFsnbG1lck1vZExtZXJUZXN0J11cbkZvcm11bGE6IHNjYWxlKGNvbmZpZGVuY2UpIH4gQ09ORCArIHZhbGVuY2UgKyAoMSB8IHN1YklEKSArIChDT05EIHwgdHJhaXRzKVxuICAgRGF0YTogbG9uZ0RmXG5cblJFTUwgY3JpdGVyaW9uIGF0IGNvbnZlcmdlbmNlOiAxMzcyOC4xXG5cblNjYWxlZCByZXNpZHVhbHM6IFxuICAgIE1pbiAgICAgIDFRICBNZWRpYW4gICAgICAzUSAgICAgTWF4IFxuLTQuMTI2MiAtMC42MDA0IC0wLjA5ODggIDAuNjM3MCAgMy42NTgwIFxuXG5SYW5kb20gZWZmZWN0czpcbiBHcm91cHMgICBOYW1lICAgICAgICBWYXJpYW5jZSAgU3RkLkRldi4gQ29yciAgICAgXG4gdHJhaXRzICAgKEludGVyY2VwdCkgMC4wMDkyNDkwIDAuMDk2MTcgICAgICAgICAgIFxuICAgICAgICAgIENPTkROSSAgICAgIDAuMDAwMjkwMiAwLjAxNzA0ICAxLjAwICAgICBcbiAgICAgICAgICBDT05EU1UgICAgICAwLjAxMTM2NDQgMC4xMDY2MCAgMS4wMCAxLjAwXG4gc3ViSUQgICAgKEludGVyY2VwdCkgMC4zMzc5MDY5IDAuNTgxMzAgICAgICAgICAgIFxuIFJlc2lkdWFsICAgICAgICAgICAgIDAuNjYwNDUzMiAwLjgxMjY4ICAgICAgICAgICBcbk51bWJlciBvZiBvYnM6IDU1MzQsIGdyb3VwczogIHRyYWl0cywgMjY2OyBzdWJJRCwgNDJcblxuRml4ZWQgZWZmZWN0czpcbiAgICAgICAgICAgICAgICAgRXN0aW1hdGUgU3RkLiBFcnJvciAgICAgICAgZGYgdCB2YWx1ZSBQcig+fHR8KVxuKEludGVyY2VwdCkgICAgICAgMC4xMTEzOSAgICAwLjE2MzA0ICAzOS41ODUyMSAgIDAuNjgzICAgIDAuNDk4XG5DT05ETkkgICAgICAgICAgIC0wLjA5NTE1ICAgIDAuMjIxOTEgIDM4Ljk5MDY0ICAtMC40MjkgICAgMC42NzBcbkNPTkRTVSAgICAgICAgICAgLTAuMjAyMDQgICAgMC4yMjU2NiAgMzkuMDU2MzkgIC0wLjg5NSAgICAwLjM3NlxudmFsZW5jZXBvc2l0aXZlICAtMC4wNDQ4OSAgICAwLjAyNzM2IDI2OS42OTEzNyAgLTEuNjQxICAgIDAuMTAyXG5cbkNvcnJlbGF0aW9uIG9mIEZpeGVkIEVmZmVjdHM6XG4gICAgICAgICAgICAoSW50cikgQ09ORE5JIENPTkRTVVxuQ09ORE5JICAgICAgLTAuNzI5ICAgICAgICAgICAgICBcbkNPTkRTVSAgICAgIC0wLjcxNiAgMC41MjcgICAgICAgXG52YWxlbmNlcHN0diAtMC4wODAgLTAuMDAyIC0wLjAwMVxub3B0aW1pemVyIChubG9wdHdyYXApIGNvbnZlcmdlbmNlIGNvZGU6IDAgKE9LKVxuYm91bmRhcnkgKHNpbmd1bGFyKSBmaXQ6IHNlZSBoZWxwKCdpc1Npbmd1bGFyJylcbiJ9 -->
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [&#39;lmerModLmerTest&#39;]
+Formula: scale(confidence) ~ COND + valence + (1 | subID) + (COND | traits)
+   Data: longDf
+
+REML criterion at convergence: 13728.1
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-4.1262 -0.6004 -0.0988  0.6370  3.6580 
+
+Random effects:
+ Groups   Name        Variance  Std.Dev. Corr     
+ traits   (Intercept) 0.0092490 0.09617           
+          CONDNI      0.0002902 0.01704  1.00     
+          CONDSU      0.0113644 0.10660  1.00 1.00
+ subID    (Intercept) 0.3379069 0.58130           
+ Residual             0.6604532 0.81268           
+Number of obs: 5534, groups:  traits, 266; subID, 42
+
+Fixed effects:
+                 Estimate Std. Error        df t value Pr(&gt;|t|)
+(Intercept)       0.11139    0.16304  39.58521   0.683    0.498
+CONDNI           -0.09515    0.22191  38.99064  -0.429    0.670
+CONDSU           -0.20204    0.22566  39.05639  -0.895    0.376
+valencepositive  -0.04489    0.02736 269.69137  -1.641    0.102
+
+Correlation of Fixed Effects:
+            (Intr) CONDNI CONDSU
+CONDNI      -0.729              
+CONDSU      -0.716  0.527       
+valencepstv -0.080 -0.002 -0.001
+optimizer (nloptwrap) convergence code: 0 (OK)
+boundary (singular) fit: see help(&#39;isSingular&#39;)</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubTwtbG1lcihzY2FsZShjb25maWRlbmNlKSB+IENPTkQgKyAoIDEgfCBzdWJJRCApICsgKCBDT05EIHwgdHJhaXRzKSwgZGF0YT1sb25nRGYpXG5zdW1tYXJ5KG0pXG5nZ3ByZWRpY3QobSwgYyhcIm91dERlZ3JlZVwiLFwiQ09ORFwiKSkgJT4lIHBsb3QoKVxuYGBgIn0= -->
-<pre class="r"><code>m&lt;-lmer(scale(confidence) ~ COND + ( 1 | subID ) + ( COND | traits), data=longDf)
-summary(m)
-ggpredict(m, c(&quot;outDegree&quot;,&quot;COND&quot;)) %&gt;% plot()</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShtKVxuXG5gYGAifQ== -->
+<pre class="r"><code>summary(m)
+</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiTGluZWFyIG1peGVkIG1vZGVsIGZpdCBieSBSRU1MLiB0LXRlc3RzIHVzZSBTYXR0ZXJ0aHdhaXRlJ3MgbWV0aG9kIFsnbG1lck1vZExtZXJUZXN0J11cbkZvcm11bGE6IHNjYWxlKGNvbmZpZGVuY2UpIH4gQ09ORCArICgxIHwgc3ViSUQpICsgKENPTkQgfCB0cmFpdHMpXG4gICBEYXRhOiBsb25nRGZcblxuUkVNTCBjcml0ZXJpb24gYXQgY29udmVyZ2VuY2U6IDE1MjQ3LjZcblxuU2NhbGVkIHJlc2lkdWFsczogXG4gICAgTWluICAgICAgMVEgIE1lZGlhbiAgICAgIDNRICAgICBNYXggXG4tNC4xNjI3IC0wLjYwMjUgLTAuMDk3NSAgMC42MjkyICAzLjQ5MzcgXG5cblJhbmRvbSBlZmZlY3RzOlxuIEdyb3VwcyAgIE5hbWUgICAgICAgIFZhcmlhbmNlIFN0ZC5EZXYuIENvcnIgICAgIFxuIHRyYWl0cyAgIChJbnRlcmNlcHQpIDAuMDEwMjQgIDAuMTAxMiAgICAgICAgICAgIFxuICAgICAgICAgIENPTkROSSAgICAgIDAuMDAyNDUgIDAuMDQ5NSAgIDAuNjAgICAgIFxuICAgICAgICAgIENPTkRTVSAgICAgIDAuMDEyMzggIDAuMTExMyAgIDAuOTggMC40M1xuIHN1YklEICAgIChJbnRlcmNlcHQpIDAuMzM1MzcgIDAuNTc5MSAgICAgICAgICAgIFxuIFJlc2lkdWFsICAgICAgICAgICAgIDAuNjU4NTQgIDAuODExNSAgICAgICAgICAgIFxuTnVtYmVyIG9mIG9iczogNjE1MywgZ3JvdXBzOiAgdHJhaXRzLCAyOTY7IHN1YklELCA0MlxuXG5GaXhlZCBlZmZlY3RzOlxuICAgICAgICAgICAgRXN0aW1hdGUgU3RkLiBFcnJvciAgICAgICBkZiB0IHZhbHVlIFByKD58dHwpXG4oSW50ZXJjZXB0KSAgMC4wODQ1OSAgICAwLjE2MTgwIDM5LjA5NzE0ICAgMC41MjMgICAgMC42MDRcbkNPTkROSSAgICAgIC0wLjA3MjI2ICAgIDAuMjIwOTQgMzkuMDEzMTcgIC0wLjMyNyAgICAwLjc0NVxuQ09ORFNVICAgICAgLTAuMTgwODkgICAgMC4yMjQ2NSAzOS4wNjk5MCAgLTAuODA1ICAgIDAuNDI2XG5cbkNvcnJlbGF0aW9uIG9mIEZpeGVkIEVmZmVjdHM6XG4gICAgICAgKEludHIpIENPTkROSVxuQ09ORE5JIC0wLjczMSAgICAgICBcbkNPTkRTVSAtMC43MTggIDAuNTI3XG5vcHRpbWl6ZXIgKG5sb3B0d3JhcCkgY29udmVyZ2VuY2UgY29kZTogMCAoT0spXG5ib3VuZGFyeSAoc2luZ3VsYXIpIGZpdDogc2VlIGhlbHAoJ2lzU2luZ3VsYXInKVxuIn0= -->
+<pre><code>Linear mixed model fit by REML. t-tests use Satterthwaite&#39;s method [&#39;lmerModLmerTest&#39;]
+Formula: scale(confidence) ~ COND + (1 | subID) + (COND | traits)
+   Data: longDf
+
+REML criterion at convergence: 15247.6
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-4.1627 -0.6025 -0.0975  0.6292  3.4937 
+
+Random effects:
+ Groups   Name        Variance Std.Dev. Corr     
+ traits   (Intercept) 0.01024  0.1012            
+          CONDNI      0.00245  0.0495   0.60     
+          CONDSU      0.01238  0.1113   0.98 0.43
+ subID    (Intercept) 0.33537  0.5791            
+ Residual             0.65854  0.8115            
+Number of obs: 6153, groups:  traits, 296; subID, 42
+
+Fixed effects:
+            Estimate Std. Error       df t value Pr(&gt;|t|)
+(Intercept)  0.08459    0.16180 39.09714   0.523    0.604
+CONDNI      -0.07226    0.22094 39.01317  -0.327    0.745
+CONDSU      -0.18089    0.22465 39.06990  -0.805    0.426
+
+Correlation of Fixed Effects:
+       (Intr) CONDNI
+CONDNI -0.731       
+CONDSU -0.718  0.527
+optimizer (nloptwrap) convergence code: 0 (OK)
+boundary (singular) fit: see help(&#39;isSingular&#39;)</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
@@ -1811,8 +1956,9 @@ summary(m)</code></pre>
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
+</div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKCmBgYHtyfQptPC1sbWVyKHNjYWxlKGV2YWwpIH4gY29uZmlkZW5jZSArIGNvbmZpZGVuY2UyICsgKCAxIHwgc3ViSUQgKSArICggMSB8IHRyYWl0cyksIGRhdGE9bG9uZ0RmKQpzdW1tYXJ5KG0pCgptPC1sbWVyKHNjYWxlKGV2YWwpIH4gY29uZmlkZW5jZSpDT05EICsgKCBjb25maWRlbmNlIHwgc3ViSUQgKSArICggMSB8IHRyYWl0cyksIGRhdGE9bG9uZ0RmKQpzdW1tYXJ5KG0pCmdncHJlZGljdChtLCBjKCJjb25maWRlbmNlIiwiQ09ORCIpKSAlPiUgcGxvdCgpCgptPC1sbWVyKHNjYWxlKGV2YWwpIH4gY29uZmlkZW5jZSp2YWxlbmNlICsgKCBjb25maWRlbmNlICsgdmFsZW5jZSB8IHN1YklEICkgKyAoIDEgfCB0cmFpdHMpLCBkYXRhPWxvbmdEZikKc3VtbWFyeShtKQpnZ3ByZWRpY3QobSwgYygiY29uZmlkZW5jZSIsInZhbGVuY2UiKSkgJT4lIHBsb3QoKQoKbTwtbG1lcihldmFsIH4gcG9seShjb25maWRlbmNlLDIscmF3PUZBTFNFKSArICggcG9seShjb25maWRlbmNlLDIscmF3PUZBTFNFKSB8IHN1YklEICkgKyAoIDEgfCB0cmFpdHMpLCBkYXRhPWxvbmdEZikKc3VtbWFyeShtKQpsaWJyYXJ5KGdnZWZmZWN0cykKZ2dwcmVkaWN0KG0sIGMoImNvbmZpZGVuY2UiKSkgJT4lIHBsb3QoKQpgYGAKCmBgYHtyfQptPC1sbWVyKHNjYWxlKGNvbmZpZGVuY2UpIH4gQ09ORCArICggMSB8IHN1YklEICkgKyAoIENPTkQgfCB0cmFpdHMpLCBkYXRhPWxvbmdEZikKc3VtbWFyeShtKQpnZ3ByZWRpY3QobSwgYygiQ0NPTkQiKSkgJT4lIHBsb3QoKQoKbTwtbG1lcihzY2FsZShjb25maWRlbmNlKSB+IENPTkQgKiBvdXREZWdyZWUgKyAoIDEgfCBzdWJJRCApICsgKCBDT05EIHwgdHJhaXRzKSwgZGF0YT1sb25nRGYpCnN1bW1hcnkobSkKZ2dwcmVkaWN0KG0sIGMoIm91dERlZ3JlZSIsIkNPTkQiKSkgJT4lIHBsb3QoKQpgYGAKCmBgYHtyfQptPC1sbWVyKHNjYWxlKGNvbmZpZGVuY2UpIH4gQ09ORCArICggMSB8IHN1YklEICkgKyAoIENPTkQgfCB0cmFpdHMpLCBkYXRhPWxvbmdEZikKc3VtbWFyeShtKQpnZ3ByZWRpY3QobSwgYygib3V0RGVncmVlIiwiQ09ORCIpKSAlPiUgcGxvdCgpCmBgYAoKCmBgYHtyfQptIDwtIGxtKHNjYWxlKFJhY2VfSWQpIH4gQ09ORCwgZGF0YSA9IHJhd0RmKQpzdW1tYXJ5KG0pCgptIDwtIGxtKHNjYWxlKEdlbmRlcl9JZCkgfiBDT05ELCBkYXRhID0gcmF3RGYpCnN1bW1hcnkobSkKCm0gPC0gbG0oU2V4dWFsX0lkIH4gQ09ORCwgZGF0YSA9IHJhd0RmKQpzdW1tYXJ5KG0pCgptIDwtIGxtKFBvbGl0aWNhbF9JZCB+IENPTkQsIGRhdGEgPSByYXdEZikKc3VtbWFyeShtKQoKbSA8LSBsbShTdHVkZW50X0lkIH4gQ09ORCwgZGF0YSA9IHJhd0RmKQpzdW1tYXJ5KG0pCmBgYAoK</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUiBOb3RlYm9vayIKb3V0cHV0OiBodG1sX25vdGVib29rCi0tLQoKYGBge3J9CmxvbmdEZiRldmFsTWlkIDwtIGFicyg0LWxvbmdEZiRldmFsKQpgYGAKCiMgQ2VudHJhbGl0eSBQcmVkaWN0cyBDb25maWRlbmNlCgpgYGB7cn0KbTwtbG1lcihzY2FsZShjb25maWRlbmNlKSB+IHNjYWxlKG91dERlZ3JlZSkrICggc2NhbGUob3V0RGVncmVlKSB8IHN1YklEICkgKyAoIDEgfCB0cmFpdHMpLCBkYXRhPWxvbmdEZikKc3VtbWFyeShtKQoKbTwtbG1lcihzY2FsZShjb25maWRlbmNlKSB+IHNjYWxlKG91dERlZ3JlZSkqdmFsZW5jZSArICggc2NhbGUob3V0RGVncmVlKSp2YWxlbmNlIHwgc3ViSUQgKSArICggMSB8IHRyYWl0cyksIGRhdGE9bG9uZ0RmKQpzdW1tYXJ5KG0pCgptPC1sbWVyKHNjYWxlKGNvbmZpZGVuY2UpIH4gc2NhbGUoaW5EZWdyZWUpICsgKCBzY2FsZShpbkRlZ3JlZSkgfCBzdWJJRCApICsgKCAxIHwgdHJhaXRzKSwgZGF0YT1sb25nRGYpCnN1bW1hcnkobSkKYGBgCgojIEV4dHJlbWUgUmVzcG9uc2VzCgpgYGB7cn0KbTwtbG1lcihzY2FsZShldmFsTWlkKSB+IHNjYWxlKGNvbmZpZGVuY2UpICsgKCBzY2FsZShjb25maWRlbmNlKSB8IHN1YklEICkgKyAoIDEgfCB0cmFpdHMpLCBkYXRhPWxvbmdEZikKc3VtbWFyeShtKQpgYGAKCgoKYGBge3J9Cm08LWxtZXIoc2NhbGUoZXZhbCkgfiBjb25maWRlbmNlICsgY29uZmlkZW5jZTIgKyAoIDEgfCBzdWJJRCApICsgKCAxIHwgdHJhaXRzKSwgZGF0YT1sb25nRGYpCnN1bW1hcnkobSkKCm08LWxtZXIoc2NhbGUoZXZhbCkgfiBjb25maWRlbmNlKkNPTkQgKyAoIGNvbmZpZGVuY2UgfCBzdWJJRCApICsgKCAxIHwgdHJhaXRzKSwgZGF0YT1sb25nRGYpCnN1bW1hcnkobSkKZ2dwcmVkaWN0KG0sIGMoImNvbmZpZGVuY2UiLCJDT05EIikpICU+JSBwbG90KCkKCm08LWxtZXIoc2NhbGUoZXZhbCkgfiBjb25maWRlbmNlKnZhbGVuY2UgKyAoIGNvbmZpZGVuY2UgKyB2YWxlbmNlIHwgc3ViSUQgKSArICggMSB8IHRyYWl0cyksIGRhdGE9bG9uZ0RmKQpzdW1tYXJ5KG0pCmdncHJlZGljdChtLCBjKCJjb25maWRlbmNlIiwidmFsZW5jZSIpKSAlPiUgcGxvdCgpCgptPC1sbWVyKGV2YWwgfiBwb2x5KGNvbmZpZGVuY2UsMixyYXc9RkFMU0UpICsgKCBwb2x5KGNvbmZpZGVuY2UsMixyYXc9RkFMU0UpIHwgc3ViSUQgKSArICggMSB8IHRyYWl0cyksIGRhdGE9bG9uZ0RmKQpzdW1tYXJ5KG0pCmxpYnJhcnkoZ2dlZmZlY3RzKQpnZ3ByZWRpY3QobSwgYygiY29uZmlkZW5jZSIpKSAlPiUgcGxvdCgpCmBgYAoKYGBge3J9Cm08LWxtZXIoc2NhbGUoY29uZmlkZW5jZSkgfiBDT05EICsgKCAxIHwgc3ViSUQgKSArICggQ09ORCB8IHRyYWl0cyksIGRhdGE9bG9uZ0RmKQpzdW1tYXJ5KG0pCmdncHJlZGljdChtLCBjKCJDQ09ORCIpKSAlPiUgcGxvdCgpCgptPC1sbWVyKHNjYWxlKGNvbmZpZGVuY2UpIH4gQ09ORCAqIG91dERlZ3JlZSArICggMSB8IHN1YklEICkgKyAoIENPTkQgfCB0cmFpdHMpLCBkYXRhPWxvbmdEZikKc3VtbWFyeShtKQpnZ3ByZWRpY3QobSwgYygib3V0RGVncmVlIiwiQ09ORCIpKSAlPiUgcGxvdCgpCmBgYAoKYGBge3J9Cm08LWxtZXIoc2NhbGUoY29uZmlkZW5jZSkgfiBDT05EICsgKCAxIHwgc3ViSUQgKSArICggQ09ORCB8IHRyYWl0cyksIGRhdGE9bG9uZ0RmKQpzdW1tYXJ5KG0pCmdncHJlZGljdChtLCBjKCJvdXREZWdyZWUiLCJDT05EIikpICU+JSBwbG90KCkKYGBgCgoKYGBge3J9Cm0gPC0gbG0oc2NhbGUoUmFjZV9JZCkgfiBDT05ELCBkYXRhID0gcmF3RGYpCnN1bW1hcnkobSkKCm0gPC0gbG0oc2NhbGUoR2VuZGVyX0lkKSB+IENPTkQsIGRhdGEgPSByYXdEZikKc3VtbWFyeShtKQoKbSA8LSBsbShTZXh1YWxfSWQgfiBDT05ELCBkYXRhID0gcmF3RGYpCnN1bW1hcnkobSkKCm0gPC0gbG0oUG9saXRpY2FsX0lkIH4gQ09ORCwgZGF0YSA9IHJhd0RmKQpzdW1tYXJ5KG0pCgptIDwtIGxtKFN0dWRlbnRfSWQgfiBDT05ELCBkYXRhID0gcmF3RGYpCnN1bW1hcnkobSkKYGBgCgo=</div>
 
 
 

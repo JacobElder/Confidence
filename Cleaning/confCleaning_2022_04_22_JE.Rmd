@@ -36,8 +36,16 @@ evalTraits<-pivot_longer(evalTraits, cols=Accurate_1:Worrier_1, names_to = c("tr
 evalTraits$traits <- gsub("_1","",evalTraits$traits)
 
 longDf <- merge(confTraits, evalTraits, by = c("subID","traits"))
+
+unique(longDf$traits)
+
+longDf$traits <- gsub("\\.","-", longDf$traits)
+
 longDf$confidence2 <- longDf$confidence^2
 longDf <- longDf[!is.na(longDf$confidence),]
+
+# Check and make sure all traits have been matched and were spelled correctly
+setdiff(unique(longDf$traits), allTraits$traits)
 ```
 
 ```{r}

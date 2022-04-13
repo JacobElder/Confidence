@@ -3,6 +3,31 @@ title: "R Notebook"
 output: html_notebook
 ---
 
+```{r}
+longDf$evalMid <- abs(4-longDf$eval)
+```
+
+# Centrality Predicts Confidence
+
+```{r}
+m<-lmer(scale(confidence) ~ scale(outDegree)+ ( scale(outDegree) | subID ) + ( 1 | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(confidence) ~ scale(outDegree)*valence + ( scale(outDegree)*valence | subID ) + ( 1 | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(confidence) ~ scale(inDegree) + ( scale(inDegree) | subID ) + ( 1 | traits), data=longDf)
+summary(m)
+```
+
+# Extreme Responses
+
+```{r}
+m<-lmer(scale(evalMid) ~ scale(confidence) + ( scale(confidence) | subID ) + ( 1 | traits), data=longDf)
+summary(m)
+```
+
+
 
 ```{r}
 m<-lmer(scale(eval) ~ confidence + confidence2 + ( 1 | subID ) + ( 1 | traits), data=longDf)
