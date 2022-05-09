@@ -55,6 +55,126 @@ longDf <- rawDf %>% select(subID,COND,CCOND,Race_Id:Student_Id) %>% right_join(l
 longDf <- longDf %>% left_join(allTraits, by = "traits")
 ```
 
+```{r}
+indDiff <- rawDf %>% select(subID,SCC1:SCC12,RSE1:CESD3,CESD4:MAIA.2_19)
+```
+
+## Satisfaction with Life
+
+```{r}
+ind1 <- grep("SWLS_1", colnames(indDiff))
+ind1<-min(ind1)
+ind2<- grep("SWLS_5", colnames(indDiff))
+ind2<-max(ind2)
+# Compute score for Self-Concept Clarity Scale items
+indDiff$SWLS = rowMeans(indDiff[,ind1:ind2], na.rm = TRUE)
+
+psych::alpha(indDiff[ind1:ind2])
+```
+
+## CESD
+
+```{r}
+# Reverse code Self-Concept Clarity Scale items
+CESD_revcols = c("CESD4", "CESD8", "CESD12", "CESD16")
+indDiff[ ,CESD_revcols] = 5 - indDiff[ ,CESD_revcols]
+ind1 <- grep("CESD", colnames(indDiff))
+ind1<-min(ind1)
+ind2<- grep("CESD", colnames(indDiff))
+ind2<-max(ind2)
+# Compute score for Self-Concept Clarity Scale items
+indDiff$CESD = rowMeans(indDiff[,ind1:ind2], na.rm = TRUE)
+
+psych::alpha(indDiff[ind1:ind2])
+```
+
+## Self-Concept Clarity
+
+```{r}
+# Reverse code Self-Concept Clarity Scale items
+SCC_revcols = c("SCC1", "SCC2", "SCC3", "SCC4", "SCC5", "SCC7", 
+                 "SCC8", "SCC9", "SCC10", "SCC12")
+indDiff[ ,SCC_revcols] = 6 - indDiff[ ,SCC_revcols]
+ind1 <- grep("SCC1", colnames(indDiff))
+ind1<-min(ind1)
+ind2<- grep("SCC12", colnames(indDiff))
+ind2<-max(ind2)
+# Compute score for Self-Concept Clarity Scale items
+indDiff$SCC = rowMeans(indDiff[,ind1:ind2], na.rm = TRUE)
+
+psych::alpha(indDiff[ind1:ind2])
+```
+
+## Self-Esteem
+
+```{r}
+# Reverse code Rosenberg Self-Esteem items
+SErevcols = c("RSE2", "RSE5", "RSE6", "RSE8", "RSE9")
+indDiff[ ,SErevcols] = 5 - indDiff[ ,SErevcols]
+ind1 <- grep("^RSE1$", colnames(indDiff))
+ind1<-min(ind1)
+ind2<- grep("^RSE10$", colnames(indDiff))
+ind2<-max(ind2)
+# Compute scores for Rosenberg Self-Esteem
+indDiff$SE = rowMeans(indDiff[, ind1:ind2], na.rm = TRUE)
+indDiff$SE <- 5 - indDiff$SE
+psych::alpha(indDiff[ind1:ind2])
+```
+
+## Need for Cognition
+
+```{r}
+NFCrevcols = c("NFC.6_3", "NFC.6_4")
+indDiff[ ,NFCrevcols] = 8 - indDiff[ ,NFCrevcols]
+ind1 <- grep("NFC.6_1", colnames(indDiff))
+ind1<-min(ind1)
+ind2<- grep("NFC.6_6", colnames(indDiff))
+ind2<-max(ind2)
+# Compute scores for Need for Cog
+indDiff$NFC = rowMeans(indDiff[, ind1:ind2], na.rm = TRUE)
+
+psych::alpha(indDiff[ind1:ind2])
+```
+
+## Dialectical Self
+
+```{r}
+columnNames <- colnames(indDiff[grep("^DS",colnames(indDiff))])
+DSrevcols <- columnNames[c(1,5,6,7,9,14)]
+#DSrevcols = c("DS_1", "DS_7", "DS_8", "DS_9", "DS_11","DS_17")
+indDiff[ ,DSrevcols] = 8 - indDiff[ ,DSrevcols]
+ind1 <- grep("DS_1", colnames(indDiff))
+ind1<-min(ind1)
+ind2<- grep("DS_17", colnames(indDiff))
+ind2<-max(ind2)
+# Compute scores for Need for Cog
+indDiff$DS = rowMeans(indDiff[, ind1:ind2], na.rm = TRUE)
+
+psych::alpha(indDiff[ind1:ind2])
+```
+
+## Interoception
+
+```{r}
+MAIArevcols = c("MAIA.1_5", "MAIA.1_6", "MAIA.1_7", "MAIA.1_8", "MAIA.1_9", "MAIA.1_10", "MAIA.1_11", "MAIA.1_12", "MAIA.1_15")
+indDiff[, MAIArevcols] = 7 - indDiff[ ,MAIArevcols]
+ind1 <- grep("MAIA", colnames(indDiff))
+ind1 <- min(ind1)
+ind2 <- grep("MAIA", colnames(indDiff))
+ind2 <- max(ind2)
+indDiff$MAIA <- rowMeans(indDiff[, ind1:ind2], na.rm = TRUE)
+psych::alpha(indDiff[,ind1:ind2])
+```
+
+
+
+```{r}
+rawDf <- indDiff %>% select(subID, SCC, NFC, SE, DS, CESD, SWLS, MAIA) %>% right_join(rawDf, by = "subID")
+
+longDf <- indDiff %>% select(subID, SCC, NFC, SE, DS, CESD, SWLS, MAIA) %>% right_join(longDf, by = "subID")
+```
+
+
 
 
 

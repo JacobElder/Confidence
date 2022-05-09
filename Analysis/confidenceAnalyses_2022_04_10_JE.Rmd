@@ -4,6 +4,12 @@ output: html_notebook
 ---
 
 ```{r}
+library(lmerTest)
+library(ggeffects)
+```
+
+
+```{r}
 longDf$evalMid <- abs(4-longDf$eval)
 ```
 
@@ -25,6 +31,7 @@ summary(m)
 ```{r}
 m<-lmer(scale(evalMid) ~ scale(confidence) + ( scale(confidence) | subID ) + ( 1 | traits), data=longDf)
 summary(m)
+r2glmm::r2beta(m)
 ```
 
 
@@ -48,19 +55,106 @@ ggpredict(m, c("confidence")) %>% plot()
 ```
 
 ```{r}
-m<-lmer(scale(confidence) ~ COND + ( 1 | subID ) + ( COND | traits), data=longDf)
+m<-lmer(scale(confidence) ~ COND * scale(eval) + ( scale(eval) | subID ) + ( COND | traits), data=longDf)
 summary(m)
-ggpredict(m, c("CCOND")) %>% plot()
+ggpredict(m, c("COND")) %>% plot()
 
-m<-lmer(scale(confidence) ~ COND * outDegree + ( 1 | subID ) + ( COND | traits), data=longDf)
+m<-lmer(scale(confidence) ~ COND * scale(outDegree) + ( 1 | subID ) + ( COND | traits), data=longDf)
 summary(m)
 ggpredict(m, c("outDegree","COND")) %>% plot()
 ```
 
 ```{r}
-m<-lmer(scale(confidence) ~ COND + valence  + scale(eval) + ( 1 | subID ) + ( COND | traits), data=longDf)
+m<-lmer(scale(confidence) ~ COND*SCC + valence + ( valence | subID ) + ( COND | traits), data=longDf)
 summary(m)
-ggpredict(m, c("outDegree","COND")) %>% plot()
+ggpredict(m, c("SCC","COND")) %>% plot()
+```
+
+```{r}
+m<-lmer(scale(confidence) ~ scale(SCC) + ( 1 | subID ) + ( scale(SCC) | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(confidence) ~ scale(NFC) + ( 1 | subID ) + ( scale(NFC) | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(confidence) ~ scale(SE) + ( 1 | subID ) + ( scale(SE) | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(confidence) ~ scale(DS) + ( 1 | subID ) + ( scale(DS) | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(confidence) ~ scale(MAIA) + ( 1 | subID ) + ( scale(MAIA) | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(confidence) ~ scale(CESD) + ( 1 | subID ) + ( scale(CESD) | traits), data=longDf)
+summary(m)
+```
+
+```{r}
+m<-lmer(scale(confidence) ~ scale(SCC) * valence + ( valence | subID ) + ( scale(SCC) | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(confidence) ~ scale(NFC) * valence + ( valence | subID ) + ( scale(NFC) | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(confidence) ~ scale(SE) * valence + ( valence | subID ) + ( scale(SE) | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(confidence) ~ scale(DS) * valence + ( valence | subID ) + ( scale(DS) | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(confidence) ~ scale(MAIA) * valence + ( valence | subID ) + ( scale(MAIA) | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(confidence) ~ scale(CESD) * valence + ( valence | subID ) + ( scale(CESD) | traits), data=longDf)
+summary(m)
+```
+
+```{r}
+m<-lmer(scale(evalMid) ~ scale(SCC) * scale(confidence) + ( scale(confidence) | subID ) + ( scale(SCC) | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(evalMid) ~ scale(NFC) * scale(confidence) + ( scale(confidence) | subID ) + ( scale(NFC) | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(evalMid) ~ scale(SE) * scale(confidence) + ( scale(confidence) | subID ) + ( scale(SE) | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(evalMid) ~ scale(DS) * scale(confidence) + ( scale(confidence) | subID ) + ( scale(DS) | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(evalMid) ~ scale(MAIA) * scale(confidence) + ( scale(confidence) | subID ) + ( scale(MAIA) | traits), data=longDf)
+summary(m)
+
+m<-lmer(scale(evalMid) ~ scale(CESD) * scale(confidence) + ( scale(confidence) | subID ) + ( scale(CESD) | traits), data=longDf)
+summary(m)
+```
+
+
+
+
+```{r}
+m<-lmer(scale(confidence) ~ COND * MAIA  + ( 1   | subID ) + ( COND | traits), data=longDf)
+summary(m)
+ggpredict(m, c("MAIA","COND")) %>% plot()
+```
+
+```{r}
+m<-lmer(scale(confidence) ~ COND * valence  * scale(eval) + ( valence  + scale(eval)  | subID ) + ( COND | traits), data=longDf)
+summary(m)
+ggpredict(m, c("eval","valence","COND")) %>% plot()
+```
+
+```{r}
+m<-lmer(scale(confidence) ~ COND*scale(eval) + scale(desirability) + scale(prevalence) + scale(observability) + ( scale(eval)  | subID ) + ( 1 | traits), data=longDf)
+summary(m)
+ggpredict(m, c("eval","COND")) %>% plot()
+```
+
+
+```{r}
+m <- lm(scale(SCC) ~ COND, data = rawDf)
+summary(m)
 ```
 
 
@@ -79,5 +173,7 @@ summary(m)
 
 m <- lm(Student_Id ~ COND, data = rawDf)
 summary(m)
+
+table(rawDf$COND)
 ```
 
