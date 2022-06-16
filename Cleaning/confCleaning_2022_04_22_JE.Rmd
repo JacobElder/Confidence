@@ -8,7 +8,7 @@ library(tidyverse)
 
 
 ```{r}
-rawDf <- read.csv("./input/confRaw.csv")
+rawDf <- read.csv("/Volumes/GoogleDrive/My Drive/Volumes/Research Project/Metacognition/Study 1/input/confRaw.csv")
 posTraits <- read.csv("~/Google Drive/Volumes/Research Project/Trait Network_Behaviral/generating network/output/allPosCents.csv")
 
 negTraits <- read.csv("~/Google Drive/Volumes/Research Project/Trait Network_Behaviral/generating network/output/allNegCents.csv")
@@ -21,7 +21,8 @@ rawDf <- rawDf %>% rename(subID = id)
 ```
 
 ```{r}
-rawDf <- rawDf %>% filter(Usable == 1 & ConDeb == 1)
+rawDf$remove <- ifelse(rawDf$Usable == 2 | rawDf$UnderstandTr < 4 | rawDf$UnderstandIns < 4 | rawDf$Serious < 5  | rawDf$ConDeb == 2 | rawDf$Off5 == 3, 1, 0)
+rawDf <- rawDf[rawDf$remove!=1,]
 ```
 
 
@@ -173,6 +174,11 @@ rawDf <- indDiff %>% select(subID, SCC, NFC, SE, DS, CESD, SWLS, MAIA) %>% right
 
 longDf <- indDiff %>% select(subID, SCC, NFC, SE, DS, CESD, SWLS, MAIA) %>% right_join(longDf, by = "subID")
 ```
+
+```{r}
+write.csv(longDf,"/Volumes/GoogleDrive/My Drive/Volumes/Research Project/Metacognition/Study 1/input/confClean.csv")
+```
+
 
 
 

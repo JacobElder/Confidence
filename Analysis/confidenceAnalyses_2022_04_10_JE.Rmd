@@ -8,6 +8,11 @@ library(lmerTest)
 library(ggeffects)
 ```
 
+```{r}
+longDf <- read.csv("/Volumes/GoogleDrive/My Drive/Volumes/Research Project/Metacognition/Study 1/input/confClean.csv")
+```
+
+
 
 ```{r}
 longDf$evalMid <- abs(4-longDf$eval)
@@ -34,41 +39,66 @@ summary(m)
 r2glmm::r2beta(m)
 ```
 
-
-
 ```{r}
-m<-lmer(scale(eval) ~ confidence + confidence2 + ( 1 | subID ) + ( 1 | traits), data=longDf)
-summary(m)
-
-m<-lmer(scale(eval) ~ confidence*COND + ( confidence | subID ) + ( 1 | traits), data=longDf)
-summary(m)
-ggpredict(m, c("confidence","COND")) %>% plot()
-
-m<-lmer(scale(eval) ~ confidence*valence + ( confidence + valence | subID ) + ( 1 | traits), data=longDf)
-summary(m)
-ggpredict(m, c("confidence","valence")) %>% plot()
-
-m<-lmer(eval ~ poly(confidence,2,raw=FALSE) + ( poly(confidence,2,raw=FALSE) | subID ) + ( 1 | traits), data=longDf)
-summary(m)
-library(ggeffects)
-ggpredict(m, c("confidence")) %>% plot()
+detach("package:lmerTest", unload=TRUE)
+longDf$confidence.Z <- scale(longDf$confidence)
+longDf$evalMid.Z <- scale(longDf$evalMid)
+longDf$outDegree.Z <- scale(longDf$outDegree)
+model.0 <- lmer(evalMid.Z ~ outDegree.Z + ( 1 | subID ) , data=longDf[!is.na(longDf$confidence),])
+model.M <- lmer( confidence.Z ~ outDegree.Z + ( 1 | subID ) , data=longDf[!is.na(longDf$evalMid),])
+model.Y <- lmer( evalMid.Z ~ confidence.Z + outDegree.Z + ( confidence.Z | subID ) , data=longDf)
+library(mediation)
+results <- mediate(model.M, model.Y, treat='outDegree.Z', mediator='confidence.Z',
+                   boot=F, sims=500)
+summary(results)
 ```
 
 ```{r}
-m<-lmer(scale(confidence) ~ COND * scale(eval) + ( scale(eval) | subID ) + ( COND | traits), data=longDf)
+longDf$confidence.Z <- scale(longDf$confidence)
+longDf$evalMid.Z <- scale(longDf$evalMid)
+longDf$outDegree.Z <- scale(longDf$outDegree)
+model.0 <- lmer(evalMid.Z ~ outDegree.Z + ( 1 | subID ) , data=longDf[!is.na(longDf$confidence),])
+model.M <- lmer( outDegree.Z ~ confidence.Z + ( confidence.Z | subID ) , data=longDf[!is.na(longDf$evalMid),])
+model.Y <- lmer( evalMid.Z ~ confidence.Z + outDegree.Z + ( confidence.Z | subID ) , data=longDf)
+library(mediation)
+results <- mediate(model.M, model.Y, treat='confidence.Z', mediator='outDegree.Z',
+                   boot=F, sims=500)
+summary(results)
+library(lmerTest)
+```
+
+
+# Manipulation
+
+## Main Effect
+
+```{r}
+m<-lmer(scale(confidence) ~ COND + ( 1 | subID ) + ( 1 | traits), data=longDf)
 summary(m)
 ggpredict(m, c("COND")) %>% plot()
+```
+
+## Interactions
+
+```{r}
+m<-lmer(scale(confidence) ~ COND * scale(eval) + ( scale(eval) | subID ) + ( 1 | traits), data=longDf)
+summary(m)
+ggpredict(m, c("eval","COND")) %>% plot()
+
+m<-lmer(scale(confidence) ~ COND * scale(evalMid) + ( scale(evalMid) | subID ) + ( 1 | traits), data=longDf)
+summary(m)
+ggpredict(m, c("evalMid","COND")) %>% plot()
 
 m<-lmer(scale(confidence) ~ COND * scale(outDegree) + ( 1 | subID ) + ( COND | traits), data=longDf)
 summary(m)
 ggpredict(m, c("outDegree","COND")) %>% plot()
+
+m<-lmer(scale(confidence) ~ COND * scale(inDegree) + ( 1 | subID ) + ( COND | traits), data=longDf)
+summary(m)
+ggpredict(m, c("outDegree","COND")) %>% plot()
 ```
 
-```{r}
-m<-lmer(scale(confidence) ~ COND*SCC + valence + ( valence | subID ) + ( COND | traits), data=longDf)
-summary(m)
-ggpredict(m, c("SCC","COND")) %>% plot()
-```
+# Individual Differences Predicting Confidence
 
 ```{r}
 m<-lmer(scale(confidence) ~ scale(SCC) + ( 1 | subID ) + ( scale(SCC) | traits), data=longDf)
@@ -90,43 +120,45 @@ m<-lmer(scale(confidence) ~ scale(CESD) + ( 1 | subID ) + ( scale(CESD) | traits
 summary(m)
 ```
 
+# Individual Differences Interacting with Valence in Predicting Confidence
+
 ```{r}
-m<-lmer(scale(confidence) ~ scale(SCC) * valence + ( valence | subID ) + ( scale(SCC) | traits), data=longDf)
+m<-lmer(scale(confidence) ~ scale(SCC) * valence + ( valence | subID ) + ( 1 | traits), data=longDf)
 summary(m)
 
-m<-lmer(scale(confidence) ~ scale(NFC) * valence + ( valence | subID ) + ( scale(NFC) | traits), data=longDf)
+m<-lmer(scale(confidence) ~ scale(NFC) * valence + ( valence | subID ) + ( 1 | traits), data=longDf)
 summary(m)
 
-m<-lmer(scale(confidence) ~ scale(SE) * valence + ( valence | subID ) + ( scale(SE) | traits), data=longDf)
+m<-lmer(scale(confidence) ~ scale(SE) * valence + ( valence | subID ) + ( 1 | traits), data=longDf)
 summary(m)
 
-m<-lmer(scale(confidence) ~ scale(DS) * valence + ( valence | subID ) + ( scale(DS) | traits), data=longDf)
+m<-lmer(scale(confidence) ~ scale(DS) * valence + ( valence | subID ) + ( 1 | traits), data=longDf)
 summary(m)
 
-m<-lmer(scale(confidence) ~ scale(MAIA) * valence + ( valence | subID ) + ( scale(MAIA) | traits), data=longDf)
+m<-lmer(scale(confidence) ~ scale(MAIA) * valence + ( valence | subID ) + ( 1 | traits), data=longDf)
 summary(m)
 
-m<-lmer(scale(confidence) ~ scale(CESD) * valence + ( valence | subID ) + ( scale(CESD) | traits), data=longDf)
+m<-lmer(scale(confidence) ~ scale(CESD) * valence + ( valence | subID ) + ( 1 | traits), data=longDf)
 summary(m)
 ```
 
 ```{r}
-m<-lmer(scale(evalMid) ~ scale(SCC) * scale(confidence) + ( scale(confidence) | subID ) + ( scale(SCC) | traits), data=longDf)
+m<-lmer(scale(evalMid) ~ scale(SCC) * scale(confidence) + ( scale(confidence) | subID ) + ( 1 | traits), data=longDf)
 summary(m)
 
-m<-lmer(scale(evalMid) ~ scale(NFC) * scale(confidence) + ( scale(confidence) | subID ) + ( scale(NFC) | traits), data=longDf)
+m<-lmer(scale(evalMid) ~ scale(NFC) * scale(confidence) + ( scale(confidence) | subID ) + ( 1 | traits), data=longDf)
 summary(m)
 
-m<-lmer(scale(evalMid) ~ scale(SE) * scale(confidence) + ( scale(confidence) | subID ) + ( scale(SE) | traits), data=longDf)
+m<-lmer(scale(evalMid) ~ scale(SE) * scale(confidence) + ( scale(confidence) | subID ) + ( 1 | traits), data=longDf)
 summary(m)
 
-m<-lmer(scale(evalMid) ~ scale(DS) * scale(confidence) + ( scale(confidence) | subID ) + ( scale(DS) | traits), data=longDf)
+m<-lmer(scale(evalMid) ~ scale(DS) * scale(confidence) + ( scale(confidence) | subID ) + ( 1 | traits), data=longDf)
 summary(m)
 
-m<-lmer(scale(evalMid) ~ scale(MAIA) * scale(confidence) + ( scale(confidence) | subID ) + ( scale(MAIA) | traits), data=longDf)
+m<-lmer(scale(evalMid) ~ scale(MAIA) * scale(confidence) + ( scale(confidence) | subID ) + ( 1 | traits), data=longDf)
 summary(m)
 
-m<-lmer(scale(evalMid) ~ scale(CESD) * scale(confidence) + ( scale(confidence) | subID ) + ( scale(CESD) | traits), data=longDf)
+m<-lmer(scale(evalMid) ~ scale(CESD) * scale(confidence) + ( scale(confidence) | subID ) + ( 1 | traits), data=longDf)
 summary(m)
 ```
 
