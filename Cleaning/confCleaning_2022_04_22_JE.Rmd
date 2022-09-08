@@ -4,6 +4,7 @@ output: html_notebook
 ---
 ```{r}
 library(tidyverse)
+library(igraph)
 ```
 
 
@@ -14,16 +15,75 @@ posTraits <- read.csv("~/Google Drive/Volumes/Research Project/Trait Network_Beh
 negTraits <- read.csv("~/Google Drive/Volumes/Research Project/Trait Network_Behaviral/generating network/output/allNegCents.csv")
 allTraits<-rbind(posTraits,negTraits)
 colnames(allTraits)[colnames(allTraits)=="trait"] <- "traits"
+allTraits$Idx <- 1:296
 ```
+
+```{r}
+setwd("~/Google Drive/Volumes/")
+posDf <- read.csv("./Research Project/Trait Network_Behaviral/generating network/output/adjacencyMatrix_p.csv")
+posMat <- as.matrix(posDf)
+posGraph <- graph.adjacency(posMat)
+
+negDf <- read.csv("./Research Project/Trait Network_Behaviral/generating network/output/adjacencyMatrix_n.csv")
+negMat <- as.matrix(negDf)
+negGraph <- graph.adjacency(negMat)
+```
+
 
 ```{r}
 rawDf <- rawDf %>% rename(subID = id)
 ```
 
 ```{r}
-rawDf$remove <- ifelse(rawDf$Usable == 2 | rawDf$UnderstandTr < 4 | rawDf$UnderstandIns < 4 | rawDf$Serious < 5  | rawDf$ConDeb == 2 | rawDf$Off5 == 3, 1, 0)
+evalProp <- rawDf %>% select(Accurate_1:Worrier_2) %>% select(ends_with("_1")) %>% apply(1, function(x) prop.table(table(x)))
+confProp <- rawDf %>% select(Accurate_1:Worrier_2) %>% select(ends_with("_2")) %>% apply(1, function(x) prop.table(table(x)))
+  
+rawDf$evalRepeat <- as.numeric(unlist(lapply(evalProp, function(x) any(x>.95))))
+rawDf$confRepeat <- as.numeric(unlist(lapply(evalProp, function(x) any(x>.95))))
+```
+
+```{r}
+table((rawDf$UnderstandIns < 4 | rawDf$UnderstandIns < 4))
+table(rawDf$Usable)
+table(rawDf$ConDeb)
+table(rawDf$Serious < 5)
+table(rawDf$confRepeat == 1 | rawDf$evalRepeat == 1)
+```
+
+
+
+```{r}
+rawDf$remove <- ifelse(rawDf$Usable == 2 | rawDf$UnderstandTr < 4 | rawDf$UnderstandIns < 4 | rawDf$Serious < 5  | rawDf$ConDeb == 2 | rawDf$confRepeat == 1 | rawDf$evalRepeat == 1, 1, 0)
+table(rawDf$remove)
 rawDf <- rawDf[rawDf$remove!=1,]
 ```
+
+```{r}
+psych::describe(as.numeric(rawDf$D1)) # Age
+prop.table(table(rawDf$D2))
+prop.table(table(rawDf$D3))
+unique(rawDf$D3)
+rawDf <- rawDf %>%
+  mutate(D3 = replace(D3, str_detect(rawDf$D3, ","), 8)
+         )
+rawDf$D3 <- case_when(
+  rawDf$D3 == 1 ~ "Black",
+  rawDf$D3 == 2 ~ "Asian",
+  rawDf$D3 == 3 ~ "White",
+  rawDf$D3 == 4 ~ "Hispanic/Latino",
+  rawDf$D3 == 5 ~ "Pacific Islander",
+  rawDf$D3 == 6 ~ "Native American",
+  rawDf$D3 == 7 ~ "Indian",
+  rawDf$D3 == 8 ~ "Mixed",
+  rawDf$D3 == 9 ~ "Other",
+)
+
+
+prop.table(table(rawDf$D3))
+sum (prop.table(table(rawDf$D3))[c(4,5,6,7)] )
+```
+
+
 
 
 ```{r}
@@ -59,6 +119,63 @@ longDf <- longDf %>% left_join(allTraits, by = "traits")
 ```{r}
 indDiff <- rawDf %>% select(subID,SCC1:SCC12,RSE1:CESD3,CESD4:MAIA.2_19)
 ```
+
+```{r}
+computeNeighbors <- function(graph, label, type = "all", var = "SE"){
+  curNeigh <- neighbors(graph, label, mode = type)
+  curGraph <- induced.subgraph(graph, curNeigh)
+  impInd <- which(!is.na(V(curGraph)$SE))
+  impGraph <- induced.subgraph(curGraph, impInd)
+  if(var=="SE"){
+    neighAve <- mean(V(impGraph)$SE, na.rm = TRUE)
+  }else if(var=="CONF"){
+    neighAve <- mean(V(impGraph)$CONF, na.rm = TRUE)
+  }
+    
+  return(neighAve)
+}
+
+uIds <- unique(longDf$subID)
+for(i in uIds){
+  
+  subAllSelf <- longDf[longDf$subID==i,]
+  curTraits <- allTraits %>% left_join(subAllSelf, by="traits")
+  
+  V(posGraph)$SE <- curTraits$eval[1:148]
+  V(posGraph)$CONF <- curTraits$confidence[1:148]
+  V(negGraph)$SE <- curTraits$eval[149:296]
+  V(negGraph)$CONF <- curTraits$confidence[149:296]
+  
+  for(n in 1:nrow(subAllSelf)){
+    
+    thisid <- subAllSelf$Idx[n]
+    
+    if(thisid>148){
+        curLabel <- paste0("V",thisid-148)
+        longDf$inSelfNeigh[longDf$subID==i & longDf$Idx==thisid] <- computeNeighbors(negGraph, curLabel, "in", var = "SE")
+  longDf$outSelfNeigh[longDf$subID==i & longDf$Idx==thisid] <- computeNeighbors(negGraph, curLabel, "out", var = "SE")
+  longDf$allSelfNeigh[longDf$subID==i & longDf$Idx==thisid] <- computeNeighbors(negGraph, curLabel, "all", var = "SE")
+  
+  longDf$inConfNeigh[longDf$subID==i & longDf$Idx==thisid] <- computeNeighbors(negGraph, curLabel, "in", var = "CONF")
+  longDf$outConfNeigh[longDf$subID==i & longDf$Idx==thisid] <- computeNeighbors(negGraph, curLabel, "out", var = "CONF")
+  longDf$outConfNeigh[longDf$subID==i & longDf$Idx==thisid] <- computeNeighbors(negGraph, curLabel, "all", var = "CONF")
+    }else{
+      curLabel <- paste0("V",thisid)
+        longDf$inSelfNeigh[longDf$subID==i & longDf$Idx==thisid] <- computeNeighbors(posGraph, curLabel, "in", var = "SE")
+  longDf$outSelfNeigh[longDf$subID==i & longDf$Idx==thisid] <- computeNeighbors(posGraph, curLabel, "out", var = "SE")
+  longDf$allSelfNeigh[longDf$subID==i & longDf$Idx==thisid] <- computeNeighbors(posGraph, curLabel, "all", var = "SE")
+  
+  longDf$inConfNeigh[longDf$subID==i & longDf$Idx==thisid] <- computeNeighbors(posGraph, curLabel, "in", var = "CONF")
+  longDf$outConfNeigh[longDf$subID==i & longDf$Idx==thisid] <- computeNeighbors(posGraph, curLabel, "out", var = "CONF")
+  longDf$outConfNeigh[longDf$subID==i & longDf$Idx==thisid] <- computeNeighbors(posGraph, curLabel, "all", var = "CONF")
+    }
+
+    
+  }
+  
+}
+```
+
 
 ## Satisfaction with Life
 
@@ -170,13 +287,36 @@ psych::alpha(indDiff[,ind1:ind2])
 
 
 ```{r}
-rawDf <- indDiff %>% select(subID, SCC, NFC, SE, DS, CESD, SWLS, MAIA) %>% right_join(rawDf, by = "subID")
+rawDf2 <- indDiff %>% select(subID, SCC, NFC, SE, DS, CESD, SWLS, MAIA) %>% inner_join(rawDf, by = "subID", na_matches = "never")
 
-longDf <- indDiff %>% select(subID, SCC, NFC, SE, DS, CESD, SWLS, MAIA) %>% right_join(longDf, by = "subID")
+longDf <- indDiff %>% select(subID, SCC, NFC, SE, DS, CESD, SWLS, MAIA) %>% right_join(longDf, by = "subID", na_matches = "never")
 ```
 
 ```{r}
+longDf$devMid <- abs(4-longDf$eval)
+```
+
+```{r}
+longDf <- longDf %>% group_by(subID) %>% summarise(evalBS = mean(eval, na.rm=T)) %>% full_join(longDf, by = c("subID"))
+longDf <- longDf %>% group_by(subID, valence) %>% summarise(evalBSWV = mean(eval, na.rm=T)) %>% full_join(longDf, by = c("subID","valence"))
+longDf <- longDf %>% group_by(traits, valence) %>% summarise(evalBT = mean(eval, na.rm=T)) %>% full_join(longDf, by = c("traits","valence"))
+
+longDf <- longDf %>% group_by(subID) %>% summarise(confBS = mean(confidence, na.rm=T)) %>% full_join(longDf, by = c("subID"))
+longDf <- longDf %>% group_by(subID, valence) %>% summarise(confBSWV = mean(confidence, na.rm=T)) %>% full_join(longDf, by = c("subID","valence"))
+longDf <- longDf %>% group_by(traits, valence) %>% summarise(confBT = mean(confidence, na.rm=T)) %>% full_join(longDf, by = c("traits","valence"))
+
+longDf$TSmean <- rowMeans(longDf[c("evalBSWV","evalBT")])
+
+longDf$devTS <- abs(longDf$TSmean-longDf$eval)
+longDf$devT <- abs(longDf$evalBT - longDf$eval)
+longDf$devT <- abs(longDf$evalBSWV - longDf$eval)
+```
+
+
+
+```{r}
 write.csv(longDf,"/Volumes/GoogleDrive/My Drive/Volumes/Research Project/Metacognition/Study 1/input/confClean.csv")
+arrow::write_parquet(longDf,here("/Users/jacobelder/Documents/GitHub/Confidence/Data/confClean.parquet"))
 ```
 
 
