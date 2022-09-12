@@ -1,5 +1,5 @@
 ---
-title: "finalAnalyses"
+title: "confCV"
 format: html
 editor: visual
 toc: true
@@ -9,10 +9,10 @@ toc: true
 
 ```{r, results='hide',message=FALSE,warning=FALSE}
 library(groundhog)
-pkgs <-  c("lmerTest", "ggeffects","r2glmm", "tidyverse","here", "sjPlot", "ggpubr", "wesanderson")
+pkgs <-  c("lmerTest", "ggeffects","r2glmm", "tidyverse","here", "sjPlot", "ggpubr", "wesanderson", "cvms", "groupdata2", "jtools", "sjmisc")
 groundhog.day <- '2022-07-25'
 groundhog.library(pkgs, groundhog.day)
-here::i_am("Analysis/finalConfAnalyses.qmd")
+here::i_am("Analysis/confCV.qmd")
 plotDir <- "/Volumes/Research Project/Metacognition/Study 1/Plots/"
 ```
 
@@ -43,6 +43,42 @@ longDf$SCC.Z <- scale(longDf$SCC)
 longDf$DS.Z <- scale(longDf$DS)
 longDf$CESD.Z <- scale(longDf$CESD)
 longDf$MAIA.Z <- scale(longDf$MAIA)
+longDf$traits <- as.factor(longDf$traits)
+longDf$subID <- as.factor(longDf$subID)
+```
+
+# Folds
+
+```{r}
+longDf <- longDf[!is.na(longDf$eval),]
+data <- groupdata2::fold(longDf, k = 10,
+            num_col = 'eval.Z',
+            id_col = 'subID',
+            num_fold_cols = 40,
+            handle_existing_fold_cols = "keep")
+```
+
+# Define Models
+
+```{r}
+models <- c( 'confidence.Z ~ COND + ( 1 | subID ) + ( COND | traits)', 
+             'confidence.Z ~ inDegree.Z + outDegree.Z + valence + ( valence + outDegree.Z + inDegree.Z | subID ) + ( 1 | traits)',
+             'confidence.Z ~ allSelfNeigh.Z*eval.Z + ( allSelfNeigh.Z + eval.Z  | subID ) + ( 1 | traits)',
+             ' devMid.Z ~ confidence.Z + ( confidence.Z | subID ) + ( 1 | traits)' )
+```
+
+# Cross-Validate
+
+```{r}
+gm <- gaussian_metrics(all = TRUE)
+
+CV <- cross_validate(data, models = models,
+                     fold_cols = paste0(".folds_", 1:40),
+                     family = 'gaussian',
+                     REML = FALSE,
+                     metrics = gm,
+                     control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)) )
 ```
 
 # **Self-Uncertainty Modulates Trait Self-Certainty**
@@ -406,7 +442,7 @@ MAIA.outdeg.Conf.Plot
 ## Depressive Symptoms
 
 ```{r}
-m<-lmer( confidence.Z ~ CESD.Z*outDegree.Z*eval.Z + ( outDegree.Z+eval.Z | subID ) + ( CESD.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+m<-lmer( confidence.Z ~ CESD.Z*outDegree.Z + ( outDegree.Z | subID ) + ( CESD.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
                                  optCtrl=list(maxfun=2e5)))
 r2beta(m)
 tab_model(m, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
