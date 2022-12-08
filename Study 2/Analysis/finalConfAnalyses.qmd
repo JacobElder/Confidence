@@ -1,0 +1,704 @@
+---
+title: "finalAnalyses"
+format: html
+editor: visual
+toc: true
+---
+
+# Set-Up
+
+```{r, results='hide',message=FALSE,warning=FALSE}
+library(groundhog)
+pkgs <-  c("lmerTest", "ggeffects","r2glmm", "tidyverse","here", "sjPlot", "ggpubr", "wesanderson")
+groundhog.day <- '2022-07-25'
+groundhog.library(pkgs, groundhog.day)
+here::i_am("./Study 2/Analysis/finalConfAnalyses.qmd")
+plotDir <- "/Volumes/Research Project/Metacognition/Study 2/Plots/"
+dir.create(plotDir)
+```
+
+# Import Data
+
+```{r, results='hide',message=FALSE,warning=FALSE}
+longDf <- as.data.frame( arrow::read_parquet(here("Study 2/Data/confClean2.parquet")) )
+```
+
+# Scaling
+
+```{r, results='hide',message=FALSE,warning=FALSE}
+longDf$category.Z <- scale(longDf$category)
+longDf$interpersonal.Z <- scale(longDf$interpersonal)
+longDf$observability.Z <- scale(longDf$observability)
+longDf$prevalence.Z <- scale(longDf$prevalence)
+longDf$outConfNeigh.Z <- scale(longDf$outConfNeigh)
+longDf$inConfNeigh.Z <- scale(longDf$inConfNeigh)
+longDf$allSelfNeigh.Z <- scale(longDf$allSelfNeigh)
+longDf$eval.Z <- scale(longDf$eval)
+longDf$outDegree.Z <- scale(longDf$outDegree)
+longDf$inDegree.Z <- scale(longDf$inDegree)
+longDf$evalBSWV.Z <- scale(longDf$evalBSWV)
+longDf$evalBSWV.Z <- scale(longDf$evalBSWV)
+longDf$evalBS.Z <- scale(longDf$evalBS)
+longDf$devMid.Z <- scale(longDf$devMid)
+longDf$devTS.Z <- scale(longDf$devTS)
+longDf$confidence.Z <- scale(longDf$confidence)
+longDf$NFC.Z <- scale(longDf$NFC)
+longDf$SE.Z <- scale(longDf$SE)
+longDf$SCC.Z <- scale(longDf$SCC)
+longDf$DS.Z <- scale(longDf$DS)
+longDf$CESD.Z <- scale(longDf$CESD)
+longDf$MAIA.Z <- scale(longDf$MAIA)
+```
+
+# Validation Dataset (Pilot Study)
+
+```{r, results='hide',message=FALSE,warning=FALSE}
+longDf2 <- as.data.frame( arrow::read_parquet(here("Study 1/Data/confClean.parquet")) )
+longDf2$category.Z <- scale(longDf2$category)
+longDf2$interpersonal.Z <- scale(longDf2$interpersonal)
+longDf2$observability.Z <- scale(longDf2$observability)
+longDf2$prevalence.Z <- scale(longDf2$prevalence)
+longDf2$outConfNeigh.Z <- scale(longDf2$outConfNeigh)
+longDf2$inConfNeigh.Z <- scale(longDf2$inConfNeigh)
+longDf2$allSelfNeigh.Z <- scale(longDf2$allSelfNeigh)
+longDf2$eval.Z <- scale(longDf2$eval)
+longDf2$outDegree.Z <- scale(longDf2$outDegree)
+longDf2$inDegree.Z <- scale(longDf2$inDegree)
+longDf2$evalBSWV.Z <- scale(longDf2$evalBSWV)
+longDf2$evalBSWV.Z <- scale(longDf2$evalBSWV)
+longDf2$evalBS.Z <- scale(longDf2$evalBS)
+longDf2$devMid.Z <- scale(longDf2$devMid)
+longDf2$devTS.Z <- scale(longDf2$devTS)
+longDf2$confidence.Z <- scale(longDf2$confidence)
+longDf2$NFC.Z <- scale(longDf2$NFC)
+longDf2$SE.Z <- scale(longDf2$SE)
+longDf2$SCC.Z <- scale(longDf2$SCC)
+longDf2$DS.Z <- scale(longDf2$DS)
+longDf2$CESD.Z <- scale(longDf2$CESD)
+longDf2$MAIA.Z <- scale(longDf2$MAIA)
+
+# errorDf2 <- longDf2 %>% group_by(subID) %>% summarise(selfError = mean(abs(eval-allSelfNeigh), na.rm=T))
+# indDiffs2<-longDf2[!duplicated(longDf2$subID),]
+# errorDf2 <- merge(errorDf2, indDiffs2, by="subID")
+# cor.test(errorDf2$selfError, errorDf2$SCC)
+# 
+# m <- lm(selfError ~ SE + SCC, data = errorDf2)
+# summary(m)
+```
+
+```{r, results='hide',message=FALSE,warning=FALSE}
+# mape <- function(y, yhat){
+#   mean(abs((y - yhat)/y))
+# }
+# testf<- function(y_true, y_pred) mean(abs((y_true - y_pred)/y_true))
+# # Wtf? These past two functions same exact source code as MLmetrics MAPE function, but MLmetrics generating different output... Later problem...
+# 
+# MLmetrics::MAPE(predictions.Valid, longDf2$confidence.Z)
+# mape(predictions.Valid, longDf2$confidence.Z)
+# testf(predictions.Valid, longDf2$confidence.Z)
+
+Validation <- function(modelIn, testData, testOutcome){
+
+preds <- predict(modelIn, testData, allow.new.levels = TRUE, na.action=na.exclude)
+
+  MAE = caret::MAE(preds, testOutcome, na.rm=T)
+  MRE = MAE/caret::MAE(rep(mean(testOutcome,na.rm=T),length(preds)), testOutcome, na.rm=T)
+  RMSE = caret::RMSE(preds, testOutcome, na.rm=T)
+  RRMSE = RMSE/caret::RMSE(rep(mean(testOutcome,na.rm=T),length(preds)), testOutcome, na.rm=T)
+
+output <- data.frame(
+  MAE = MAE,
+  MRE = MRE,
+  RMSE = RMSE,
+  RRMSE = RRMSE
+           #  RRSE.Valid = MLmetrics::RRSE(preds, testOutcome),
+           # MAPE.Valid = MLmetrics::MAPE(preds, testOutcome),
+           # RAE.Valid = MLmetrics::RAE(preds, testOutcome),
+           # R2.Valid = MLmetrics::R2_Score(preds, testOutcome)
+           ) 
+
+return(output)
+
+}
+```
+
+# **Traits with More Implications Are Evaluated More Confidently**
+
+```{r}
+DEG.CONF<-lmer(confidence.Z ~ inDegree.Z + outDegree.Z + valence + ( valence + outDegree.Z + inDegree.Z | subID ) + ( 1 | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(DEG.CONF)
+Validation(DEG.CONF, longDf2, longDf2$confidence.Z)
+```
+
+```{r}
+tab_model(DEG.CONF, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Confidence", df.method = "satterthwaite",show.df=T)
+```
+
+With covariates
+
+```{r}
+DEG.CONF_Cov<-lmer(confidence.Z ~ inDegree.Z + outDegree.Z + valence +
+                 interpersonal.Z + category.Z + observability.Z + prevalence.Z +
+                 ( valence + outDegree.Z + inDegree.Z | subID ) + ( 1 | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+```
+
+```{r}
+tab_model(DEG.CONF_Cov, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Confidence", df.method = "satterthwaite",show.df=T)
+r2beta(DEG.CONF_Cov)
+Validation(DEG.CONF_Cov, longDf2, longDf2$confidence.Z)
+```
+
+# **Self-Certainty Reflects Self-Consistency**
+
+```{r}
+CONF.CONSIST<-lmer(confidence.Z ~ allSelfNeigh.Z*eval.Z + ( allSelfNeigh.Z + eval.Z  | subID ) + ( 1 | traits), data=longDf)
+r2beta(CONF.CONSIST)
+Validation(CONF.CONSIST, longDf2, longDf2$confidence.Z)
+```
+
+```{r}
+tab_model(CONF.CONSIST, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Confidence", df.method = "satterthwaite",show.df=T)
+```
+
+```{r}
+m<-lmer(confidence ~ allSelfNeigh*eval + ( allSelfNeigh + eval  | subID ) + ( 1 | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+```
+
+## Plot
+
+```{r}
+p <- ggpredict(m, c("allSelfNeigh","eval[1,4,7]"))
+ConsistencyConfidencePlot <-ggplot(p, aes(x, predicted)) +  geom_line(aes(linetype=group, color=group)) + geom_ribbon(aes(ymin=conf.low, ymax=conf.high, fill=group), alpha=0.15) + scale_linetype_discrete(labels = c("Low","Medium","High")) + scale_color_manual(labels = c("Low","Medium","High"), values = wes_palette("Darjeeling1")) + scale_fill_manual( 
+                      labels=c("Low","Medium","High"), values = wes_palette("Darjeeling1")) + theme(
+    legend.position = c(.2, .7),
+    legend.justification = c("left", "bottom"),
+    legend.box.just = "left",
+    legend.margin = margin(6, 6, 6, 6)
+    ) + theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12,face="bold")) + theme(legend.text = element_text(size=12)) + theme(panel.border = element_rect(colour = "black", fill = NA, size =1)) + theme(legend.title = element_blank()) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  xlab("Neighboring Self-Evaluations") + ylab("Confidence")
+ConsistencyConfidencePlot
+ggsave(paste0(plotDir,"ConsistConf",".png"), width = 9, height = 6, dpi=500, units="in")
+ggsave(paste0(plotDir,"ConsistConf",".tiff"), width = 9, height = 6, dpi=500, units="in")
+
+ggpredict(m, c("allSelfNeigh","eval")) %>% plot(add.data=T) + labs(title="Raw Data",x="Neighboring Self-Evaluations",y="Confidence")
+```
+
+# **Greater Confidence Predicts More Extreme Self-Evaluations**
+
+## Deviation from Midpoint
+
+```{r}
+DEV.CONF<-lmer( devMid.Z ~ confidence.Z + ( confidence.Z | subID ) + ( 1 | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(DEV.CONF)
+Validation(DEV.CONF, longDf2, longDf2$devMid.Z)
+```
+
+```{r}
+tab_model(DEV.CONF, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Deviation", df.method = "satterthwaite",show.df=T)
+```
+
+## Self-Evaluations by Valence
+
+```{r}
+EVAL.VAL.CONF<-lmer( eval.Z ~ confidence.Z * valence + ( confidence.Z + valence | subID ) + ( 1 | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(EVAL.VAL.CONF)
+Validation(EVAL.VAL.CONF, longDf2, longDf2$eval.Z)
+```
+
+```{r}
+tab_model(EVAL.VAL.CONF, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Deviation", df.method = "satterthwaite",show.df=T)
+```
+
+```{r}
+m<-lmer( eval ~ confidence * valence + ( confidence + valence | subID ) + ( 1 | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+
+p <- ggpredict(m, c("confidence","valence"))
+ValenceDeviatePlot <-ggplot(p, aes(x, predicted)) +  geom_line(aes(linetype=group, color=group)) + geom_ribbon(aes(ymin=conf.low, ymax=conf.high, fill=group), alpha=0.15) + scale_linetype_discrete(labels = c("Negative","Positive")) + scale_color_manual(labels = c("Negative","Positive"), values = wes_palette("Darjeeling1")) + scale_fill_manual( 
+                      labels=c("Negative","Positive"), values = wes_palette("Darjeeling1")) + theme(
+    legend.position = c(.2, .7),
+    legend.justification = c("left", "bottom"),
+    legend.box.just = "left",
+    legend.margin = margin(6, 6, 6, 6)
+    ) + theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12,face="bold")) + theme(legend.text = element_text(size=12)) + theme(panel.border = element_rect(colour = "black", fill = NA, size =1)) + theme(legend.title = element_blank()) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  xlab("Confidence") + ylab("SelfEvaluation") + scale_y_continuous(breaks=seq(1,7,1))
+ValenceDeviatePlot
+```
+
+## Deviation from Composite of Average Evaluation Per Trait and Per Subject
+
+```{r}
+m<-lmer(devTS.Z ~ confidence.Z + ( confidence.Z | subID ) + ( 1 | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+summary(m)
+r2beta(m)
+```
+
+```{r}
+tab_model(m, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Deviation", df.method = "satterthwaite",show.df=T)
+```
+
+# Individual Differences in Self-Certainty: Main Effects
+
+## Self-Concept Clarity
+
+```{r}
+SCC.ME<-lmer( confidence.Z ~ SCC.Z + ( 1 | subID ) + ( SCC.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(SCC.ME)
+Validation(SCC.ME, longDf2, longDf2$confidence.Z)
+tab_model(SCC.ME, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+## Need for Cognition
+
+```{r}
+NFC.ME<-lmer( confidence.Z ~ NFC.Z + ( 1 | subID ) + ( NFC.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(NFC.ME)
+Validation(NFC.ME, longDf2, longDf2$confidence.Z)
+tab_model(NFC.ME, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+## Self-Esteem
+
+```{r}
+SE.ME<-lmer( confidence.Z ~ SE.Z + ( 1 | subID ) + ( SE.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(SE.ME)
+Validation(SE.ME, longDf2, longDf2$confidence.Z)
+tab_model(SE.ME, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+## Dialectical Self-Views
+
+```{r}
+DS.ME<-lmer( confidence.Z ~ DS.Z + ( 1 | subID ) + ( DS.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(DS.ME)
+Validation(DS.ME, longDf2, longDf2$confidence.Z)
+tab_model(DS.ME, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+## Interoceptive Awareness
+
+```{r}
+INTERO.ME<-lmer( confidence.Z ~ MAIA.Z + ( 1 | subID ) + ( MAIA.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(INTERO.ME)
+Validation(INTERO.ME, longDf2, longDf2$confidence.Z)
+tab_model(INTERO.ME, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+## Depressive Symptoms
+
+```{r}
+CESD.ME<-lmer( confidence.Z ~ CESD.Z + ( 1 | subID ) + ( CESD.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(CESD.ME)
+Validation(CESD.ME, longDf2, longDf2$confidence.Z)
+tab_model(CESD.ME, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+# Individual Differences in Self-Certainty as a Function of Outdegree
+
+## Self-Concept Clarity
+
+```{r}
+SCC.OUT<-lmer( confidence.Z ~ SCC.Z*outDegree.Z + ( outDegree.Z | subID ) + ( SCC.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+rb <- r2beta(SCC.OUT)
+data.frame(rb$Effect,rb$Rsq)
+Validation(SCC.OUT, longDf2, longDf2$confidence.Z)
+tab_model(SCC.OUT, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+### Plot
+
+```{r}
+m<-lmer( confidence ~ SCC*outDegree + ( outDegree | subID ) + ( SCC | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+
+p <- ggpredict(m, c("SCC","outDegree"))
+SCC.outdeg.Conf.Plot <-ggplot(p, aes(x, predicted)) +  geom_line(aes(linetype=group, color=group)) + geom_ribbon(aes(ymin=conf.low, ymax=conf.high, fill=group), alpha=0.15) + scale_linetype_discrete(labels = c("Low Outdegree","Medium Outdegree","High Outdegree")) + scale_color_manual(labels = c("Low Outdegree","Medium Outdegree","High Outdegree"), values = wes_palette("Darjeeling1")) + scale_fill_manual( 
+                      labels=c("Low Outdegree","Medium Outdegree","High Outdegree"), values = wes_palette("Darjeeling1")) + theme(
+    legend.position = c(.2, .7),
+    legend.justification = c("left", "bottom"),
+    legend.box.just = "left",
+    legend.margin = margin(6, 6, 6, 6)
+    ) + theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12,face="bold")) + theme(legend.text = element_text(size=12)) + theme(panel.border = element_rect(colour = "black", fill = NA, size =1)) + theme(legend.title = element_blank()) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  xlab("Self-Concept Clarity") + ylab("Confidence")
+SCC.outdeg.Conf.Plot
+
+ggpredict(m, c("SCC","outDegree")) %>% plot(add.data=T) + labs(title="Raw Data",x="Self-Concept Clarity",y="Confidence")
+```
+
+## Need for Cognition
+
+```{r}
+NFC.OUT<-lmer( confidence.Z ~ NFC.Z*outDegree.Z + ( outDegree.Z | subID ) + ( NFC.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+rb <- r2beta(NFC.OUT)
+data.frame(rb$Effect,rb$Rsq)
+Validation(NFC.OUT, longDf2, longDf2$confidence.Z)
+tab_model(NFC.OUT, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+### Plot
+
+```{r}
+m<-lmer( confidence ~ NFC*outDegree + ( outDegree | subID ) + ( NFC | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+
+p <- ggpredict(m, c("NFC","outDegree"))
+NFC.outdeg.Conf.Plot <-ggplot(p, aes(x, predicted)) +  geom_line(aes(linetype=group, color=group)) + geom_ribbon(aes(ymin=conf.low, ymax=conf.high, fill=group), alpha=0.15) + scale_linetype_discrete(labels = c("Low Outdegree","Medium Outdegree","High Outdegree")) + scale_color_manual(labels = c("Low Outdegree","Medium Outdegree","High Outdegree"), values = wes_palette("Darjeeling1")) + scale_fill_manual( 
+                      labels=c("Low Outdegree","Medium Outdegree","High Outdegree"), values = wes_palette("Darjeeling1")) + theme(
+    legend.position = c(.2, .7),
+    legend.justification = c("left", "bottom"),
+    legend.box.just = "left",
+    legend.margin = margin(6, 6, 6, 6)
+    ) + theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12,face="bold")) + theme(legend.text = element_text(size=12)) + theme(panel.border = element_rect(colour = "black", fill = NA, size =1)) + theme(legend.title = element_blank()) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  xlab("Need for Cognition") + ylab("Confidence")
+NFC.outdeg.Conf.Plot
+
+ggpredict(m, c("NFC","outDegree")) %>% plot(add.data=T) + labs(title="Raw Data",x="Need for Cognition",y="Confidence")
+```
+
+## Self-Esteem
+
+```{r}
+SE.OUT<-lmer( confidence.Z ~ SE.Z*outDegree.Z + ( outDegree.Z | subID ) + ( SE.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+rb <- r2beta(SE.OUT)
+data.frame(rb$Effect,rb$Rsq)
+Validation(SE.OUT, longDf2, longDf2$confidence.Z)
+tab_model(SE.OUT, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+### Plot
+
+```{r}
+m<-lmer( confidence ~ SE*outDegree + ( outDegree | subID ) + ( SE | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+
+p <- ggpredict(m, c("SE","outDegree"))
+SE.outdeg.Conf.Plot <-ggplot(p, aes(x, predicted)) +  geom_line(aes(linetype=group, color=group)) + geom_ribbon(aes(ymin=conf.low, ymax=conf.high, fill=group), alpha=0.15) + scale_linetype_discrete(labels = c("Low Outdegree","Medium Outdegree","High Outdegree")) + scale_color_manual(labels = c("Low Outdegree","Medium Outdegree","High Outdegree"), values = wes_palette("Darjeeling1")) + scale_fill_manual( 
+                      labels=c("Low Outdegree","Medium Outdegree","High Outdegree"), values = wes_palette("Darjeeling1")) + theme(
+    legend.position = c(.2, .7),
+    legend.justification = c("left", "bottom"),
+    legend.box.just = "left",
+    legend.margin = margin(6, 6, 6, 6)
+    ) + theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12,face="bold")) + theme(legend.text = element_text(size=12)) + theme(panel.border = element_rect(colour = "black", fill = NA, size =1)) + theme(legend.title = element_blank()) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  xlab("Self-Esteem") + ylab("Confidence")
+SE.outdeg.Conf.Plot
+
+ggpredict(m, c("SE","outDegree")) %>% plot(add.data=T) + labs(title="Raw Data",x="Self-Esteem",y="Confidence")
+```
+
+## Dialectical Self-Views
+
+```{r}
+DS.OUT<-lmer( confidence.Z ~ DS.Z*outDegree.Z + ( outDegree.Z | subID ) + ( DS.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(DS.OUT)
+Validation(DS.OUT, longDf2, longDf2$confidence.Z)
+tab_model(DS.OUT, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+### Plot
+
+```{r}
+m<-lmer( confidence ~ DS*outDegree + ( outDegree | subID ) + ( DS | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+
+p <- ggpredict(m, c("DS","outDegree"))
+DS.outdeg.Conf.Plot <-ggplot(p, aes(x, predicted)) +  geom_line(aes(linetype=group, color=group)) + geom_ribbon(aes(ymin=conf.low, ymax=conf.high, fill=group), alpha=0.15) + scale_linetype_discrete(labels = c("Low Outdegree","Medium Outdegree","High Outdegree")) + scale_color_manual(labels = c("Low Outdegree","Medium Outdegree","High Outdegree"), values = wes_palette("Darjeeling1")) + scale_fill_manual( 
+                      labels=c("Low Outdegree","Medium Outdegree","High Outdegree"), values = wes_palette("Darjeeling1")) + theme(
+    legend.position = c(.2, .7),
+    legend.justification = c("left", "bottom"),
+    legend.box.just = "left",
+    legend.margin = margin(6, 6, 6, 6)
+    ) + theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12,face="bold")) + theme(legend.text = element_text(size=12)) + theme(panel.border = element_rect(colour = "black", fill = NA, size =1)) + theme(legend.title = element_blank()) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  xlab("Outdegree Centrality") + ylab("Confidence")
+DS.outdeg.Conf.Plot
+
+ggpredict(m, c("DS","outDegree")) %>% plot(add.data=T) + labs(title="Raw Data",x="Dialectical Self-Views",y="Confidence")
+```
+
+## Interoceptive Awareness
+
+```{r}
+INTERO.OUT<-lmer( confidence.Z ~ MAIA.Z*outDegree.Z + ( outDegree.Z | subID ) + ( MAIA.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(INTERO.OUT)
+Validation(INTERO.OUT, longDf2, longDf2$confidence.Z)
+tab_model(INTERO.OUT, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+### Plot
+
+```{r}
+m<-lmer( confidence ~ MAIA*outDegree + ( outDegree | subID ) + ( MAIA | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+
+p <- ggpredict(m, c("MAIA","outDegree"))
+MAIA.outdeg.Conf.Plot <-ggplot(p, aes(x, predicted)) +  geom_line(aes(linetype=group, color=group)) + geom_ribbon(aes(ymin=conf.low, ymax=conf.high, fill=group), alpha=0.15) + scale_linetype_discrete(labels = c("Low Outdegree","Medium Outdegree","High Outdegree")) + scale_color_manual(labels = c("Low Outdegree","Medium Outdegree","High Outdegree"), values = wes_palette("Darjeeling1")) + scale_fill_manual( 
+                      labels=c("Low Outdegree","Medium Outdegree","High Outdegree"), values = wes_palette("Darjeeling1")) + theme(
+    legend.position = c(.2, .7),
+    legend.justification = c("left", "bottom"),
+    legend.box.just = "left",
+    legend.margin = margin(6, 6, 6, 6)
+    ) + theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12,face="bold")) + theme(legend.text = element_text(size=12)) + theme(panel.border = element_rect(colour = "black", fill = NA, size =1)) + theme(legend.title = element_blank()) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  xlab("Outdegree Centrality") + ylab("Confidence")
+MAIA.outdeg.Conf.Plot
+
+ggpredict(m, c("MAIA","outDegree")) %>% plot(add.data=T) + labs(title="Raw Data",x="Interoceptive Awareness",y="Confidence")
+```
+
+## Depressive Symptoms
+
+```{r}
+CESD.OUT<-lmer( confidence.Z ~ CESD.Z*outDegree.Z + ( outDegree.Z | subID ) + ( CESD.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(CESD.OUT)
+Validation(CESD.OUT, longDf2, longDf2$confidence.Z)
+tab_model(CESD.OUT, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+### Plot
+
+```{r}
+m<-lmer( confidence ~ CESD*outDegree + ( outDegree | subID ) + ( CESD | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+
+p <- ggpredict(m, c("CESD","outDegree"))
+CESD.outdeg.Conf.Plot <-ggplot(p, aes(x, predicted)) +  geom_line(aes(linetype=group, color=group)) + geom_ribbon(aes(ymin=conf.low, ymax=conf.high, fill=group), alpha=0.15) + scale_linetype_discrete(labels = c("Low Outdegree","Medium Outdegree","High Outdegree")) + scale_color_manual(labels = c("Low Outdegree","Medium Outdegree","High Outdegree"), values = wes_palette("Darjeeling1")) + scale_fill_manual( 
+                      labels=c("Low Outdegree","Medium Outdegree","High Outdegree"), values = wes_palette("Darjeeling1")) + theme(
+    legend.position = c(.2, .7),
+    legend.justification = c("left", "bottom"),
+    legend.box.just = "left",
+    legend.margin = margin(6, 6, 6, 6)
+    ) + theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12,face="bold")) + theme(legend.text = element_text(size=12)) + theme(panel.border = element_rect(colour = "black", fill = NA, size =1)) + theme(legend.title = element_blank()) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  xlab("Depressive Symptoms") + ylab("Confidence")
+CESD.outdeg.Conf.Plot
+
+ggpredict(m, c("CESD","outDegree")) %>% plot(add.data=T) + labs(title="Raw Data",x="Depressive Symptoms",y="Confidence")
+```
+
+```{r}
+ggarrange(SCC.outdeg.Conf.Plot, SE.outdeg.Conf.Plot, nrow=1, common.legend = T)
+ggsave(paste0(plotDir,"IndDiff.outdegConf",".png"), width = 10.5, height = 6, units = "in")
+ggsave(paste0(plotDir,"IndDiff.outdegConf",".tiff"), width = 10.5, height = 6, units = "in")
+```
+
+# Individual Differences in Self-Certainty as a Function of Valence
+
+## Self-Concept Clarity
+
+```{r}
+m<-lmer( confidence.Z ~ SCC.Z*valence + ( valence | subID ) + ( SCC.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+rb <- r2beta(m)
+data.frame(rb$Effect,rb$Rsq)
+tab_model(m, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+### Plot
+
+```{r}
+m<-lmer( confidence ~ SCC*valence + ( valence | subID ) + ( SCC | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+
+p <- ggpredict(m, c("SCC","valence"))
+SCC.valence.Conf.Plot <-ggplot(p, aes(x, predicted)) +  geom_line(aes(linetype=group, color=group)) + geom_ribbon(aes(ymin=conf.low, ymax=conf.high, fill=group), alpha=0.15) + scale_linetype_discrete(labels = c("Negative", "Positive")) + scale_color_manual(labels = c("Negative", "Positive"), values = wes_palette("Darjeeling1")) + scale_fill_manual( 
+                      labels=c("Negative", "Positive"), values = wes_palette("Darjeeling1")) + theme(
+    legend.position = c(.2, .7),
+    legend.justification = c("left", "bottom"),
+    legend.box.just = "left",
+    legend.margin = margin(6, 6, 6, 6)
+    ) + theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12,face="bold")) + theme(legend.text = element_text(size=12)) + theme(panel.border = element_rect(colour = "black", fill = NA, size =1)) + theme(legend.title = element_blank()) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  xlab("Self-Concept Clarity") + ylab("Confidence")
+SCC.valence.Conf.Plot
+
+ggpredict(m, c("SCC","valence")) %>% plot(add.data=T) + labs(title="Raw Data",x="Self-Concept Clarity",y="Confidence")
+```
+
+## Need for Cognition
+
+```{r}
+m<-lmer( confidence.Z ~ NFC.Z*valence + ( valence | subID ) + ( NFC.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+rb <- r2beta(m)
+data.frame(rb$Effect,rb$Rsq)
+tab_model(m, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+### Plot
+
+```{r}
+m<-lmer( confidence ~ NFC*valence + ( valence | subID ) + ( NFC | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+
+p <- ggpredict(m, c("NFC","valence"))
+NFC.valence.Conf.Plot <-ggplot(p, aes(x, predicted)) +  geom_line(aes(linetype=group, color=group)) + geom_ribbon(aes(ymin=conf.low, ymax=conf.high, fill=group), alpha=0.15) + scale_linetype_discrete(labels = c("Negative", "Positive")) + scale_color_manual(labels = c("Negative", "Positive"), values = wes_palette("Darjeeling1")) + scale_fill_manual( 
+                      labels=c("Negative", "Positive"), values = wes_palette("Darjeeling1")) + theme(
+    legend.position = c(.2, .7),
+    legend.justification = c("left", "bottom"),
+    legend.box.just = "left",
+    legend.margin = margin(6, 6, 6, 6)
+    ) + theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12,face="bold")) + theme(legend.text = element_text(size=12)) + theme(panel.border = element_rect(colour = "black", fill = NA, size =1)) + theme(legend.title = element_blank()) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  xlab("Need for Cognition") + ylab("Confidence")
+NFC.valence.Conf.Plot
+
+ggpredict(m, c("NFC","valence")) %>% plot(add.data=T) + labs(title="Raw Data",x="Need for Cognition",y="Confidence")
+```
+
+## Self-Esteem
+
+```{r}
+m<-lmer( confidence.Z ~ SE.Z*valence + ( valence | subID ) + ( SE.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+rb <- r2beta(m)
+data.frame(rb$Effect,rb$Rsq)
+tab_model(m, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+### Plot
+
+```{r}
+m<-lmer( confidence ~ SE*valence + ( valence | subID ) + ( SE | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+
+p <- ggpredict(m, c("SE","valence"))
+SE.valence.Conf.Plot <-ggplot(p, aes(x, predicted)) +  geom_line(aes(linetype=group, color=group)) + geom_ribbon(aes(ymin=conf.low, ymax=conf.high, fill=group), alpha=0.15) + scale_linetype_discrete(labels = c("Negative", "Positive")) + scale_color_manual(labels = c("Negative", "Positive"), values = wes_palette("Darjeeling1")) + scale_fill_manual( 
+                      labels=c("Negative", "Positive"), values = wes_palette("Darjeeling1")) + theme(
+    legend.position = c(.2, .7),
+    legend.justification = c("left", "bottom"),
+    legend.box.just = "left",
+    legend.margin = margin(6, 6, 6, 6)
+    ) + theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12,face="bold")) + theme(legend.text = element_text(size=12)) + theme(panel.border = element_rect(colour = "black", fill = NA, size =1)) + theme(legend.title = element_blank()) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  xlab("Self-Esteem") + ylab("Confidence")
+SE.valence.Conf.Plot
+
+ggpredict(m, c("SE","valence")) %>% plot(add.data=T) + labs(title="Raw Data",x="Self-Esteem",y="Confidence")
+```
+
+## Dialectical Self-Views
+
+```{r}
+m<-lmer( confidence.Z ~ DS.Z*valence + ( valence | subID ) + ( DS.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(m)
+tab_model(m, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+### Plot
+
+```{r}
+m<-lmer( confidence ~ DS*valence + ( valence | subID ) + ( DS | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+
+p <- ggpredict(m, c("DS","valence"))
+DS.valence.Conf.Plot <-ggplot(p, aes(x, predicted)) +  geom_line(aes(linetype=group, color=group)) + geom_ribbon(aes(ymin=conf.low, ymax=conf.high, fill=group), alpha=0.15) + scale_linetype_discrete(labels = c("Negative", "Positive")) + scale_color_manual(labels = c("Negative", "Positive"), values = wes_palette("Darjeeling1")) + scale_fill_manual( 
+                      labels=c("Negative", "Positive"), values = wes_palette("Darjeeling1")) + theme(
+    legend.position = c(.2, .7),
+    legend.justification = c("left", "bottom"),
+    legend.box.just = "left",
+    legend.margin = margin(6, 6, 6, 6)
+    ) + theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12,face="bold")) + theme(legend.text = element_text(size=12)) + theme(panel.border = element_rect(colour = "black", fill = NA, size =1)) + theme(legend.title = element_blank()) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  xlab("Dialectical Self-Views") + ylab("Confidence")
+DS.valence.Conf.Plot
+
+ggpredict(m, c("DS","valence")) %>% plot(add.data=T) + labs(title="Raw Data",x="Dialectical Self-Views",y="Confidence")
+```
+
+## Interoceptive Awareness
+
+```{r}
+m<-lmer( confidence.Z ~ MAIA.Z*valence + ( valence | subID ) + ( MAIA.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(m)
+tab_model(m, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+### Plot
+
+```{r}
+m<-lmer( confidence ~ MAIA*valence + ( valence | subID ) + ( MAIA | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+
+p <- ggpredict(m, c("MAIA","valence"))
+MAIA.valence.Conf.Plot <-ggplot(p, aes(x, predicted)) +  geom_line(aes(linetype=group, color=group)) + geom_ribbon(aes(ymin=conf.low, ymax=conf.high, fill=group), alpha=0.15) + scale_linetype_discrete(labels = c("Negative", "Positive")) + scale_color_manual(labels = c("Negative", "Positive"), values = wes_palette("Darjeeling1")) + scale_fill_manual( 
+                      labels=c("Negative", "Positive"), values = wes_palette("Darjeeling1")) + theme(
+    legend.position = c(.2, .7),
+    legend.justification = c("left", "bottom"),
+    legend.box.just = "left",
+    legend.margin = margin(6, 6, 6, 6)
+    ) + theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12,face="bold")) + theme(legend.text = element_text(size=12)) + theme(panel.border = element_rect(colour = "black", fill = NA, size =1)) + theme(legend.title = element_blank()) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  xlab("Interoceptive Awareness") + ylab("Confidence")
+MAIA.valence.Conf.Plot
+
+ggpredict(m, c("MAIA","valence")) %>% plot(add.data=T) + labs(title="Raw Data",x="Interoceptive Awareness",y="Confidence")
+```
+
+## Depressive Symptoms
+
+```{r}
+m<-lmer( confidence.Z ~ CESD.Z*valence + ( valence | subID ) + ( CESD.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(m)
+tab_model(m, collapse.ci = T, show.stat=T, show.r2 = T, show.se = T, string.pred = c("Fixed Effects"), string.est = "Coef.", string.se = "SE", string.stat = "t", digits = 3, emph.p = F, dv.labels = "Evaluation", df.method = "satterthwaite",show.df=T)
+```
+
+### Plot
+
+```{r}
+m<-lmer( confidence ~ CESD*valence + ( valence | subID ) + ( CESD | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+
+p <- ggpredict(m, c("CESD","valence"))
+CESD.outdeg.Conf.Plot <-ggplot(p, aes(x, predicted)) +  geom_line(aes(linetype=group, color=group)) + geom_ribbon(aes(ymin=conf.low, ymax=conf.high, fill=group), alpha=0.15) + scale_linetype_discrete(labels = c("Negative", "Positive")) + scale_color_manual(labels = c("Negative", "Positive"), values = wes_palette("Darjeeling1")) + scale_fill_manual( 
+                      labels=c("Negative", "Positive"), values = wes_palette("Darjeeling1")) + theme(
+    legend.position = c(.2, .7),
+    legend.justification = c("left", "bottom"),
+    legend.box.just = "left",
+    legend.margin = margin(6, 6, 6, 6)
+    ) + theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12,face="bold")) + theme(legend.text = element_text(size=12)) + theme(panel.border = element_rect(colour = "black", fill = NA, size =1)) + theme(legend.title = element_blank()) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+panel.background = element_blank(), axis.line = element_line(colour = "black")) +
+  xlab("Depressive Symptoms") + ylab("Confidence")
+CESD.outdeg.Conf.Plot
+
+ggpredict(m, c("CESD","valence")) %>% plot(add.data=T) + labs(title="Raw Data",x="Depressive Symptoms",y="Confidence")
+```

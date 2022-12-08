@@ -1,0 +1,92 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(pacman)
+pacman::p_load(lmerTst, simr)
+```
+
+
+```{r}
+longDf <- as.data.frame( arrow::read_parquet(here("Data/confClean.parquet")) )
+longDf <- longDf[!is.na(longDf$eval) & !is.na(longDf$confidence) & !is.na(longDf$CESD), ]
+```
+
+```{r}
+longDf$outConfNeigh.Z <- scale(longDf$outConfNeigh)
+longDf$inConfNeigh.Z <- scale(longDf$inConfNeigh)
+longDf$allSelfNeigh.Z <- scale(longDf$allSelfNeigh)
+longDf$eval.Z <- scale(longDf$eval)
+longDf$outDegree.Z <- scale(longDf$outDegree)
+longDf$inDegree.Z <- scale(longDf$inDegree)
+longDf$evalBSWV.Z <- scale(longDf$evalBSWV)
+longDf$evalBSWV.Z <- scale(longDf$evalBSWV)
+longDf$evalBS.Z <- scale(longDf$evalBS)
+longDf$devMid.Z <- scale(longDf$devMid)
+longDf$devTS.Z <- scale(longDf$devTS)
+longDf$confidence.Z <- scale(longDf$confidence)
+longDf$NFC.Z <- scale(longDf$NFC)
+longDf$SE.Z <- scale(longDf$SE)
+longDf$SCC.Z <- scale(longDf$SCC)
+longDf$DS.Z <- scale(longDf$DS)
+longDf$CESD.Z <- scale(longDf$CESD)
+longDf$MAIA.Z <- scale(longDf$MAIA)
+longDf$subID <- as.factor(longDf$subID)
+lmer <- compiler::cmpfun(lmer)
+```
+
+
+```{r}
+m<-lmer( confidence.Z ~ CESD.Z*outDegree.Z + ( outDegree.Z | subID ) + ( CESD.Z | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+```
+
+
+```{r}
+# m2 <- extend(m, along="subID", n=1000)
+# crosslevel.curve <- powerCurve(m2, test = fixed("CESD.Z:outDegree.Z", "t"), along ="subID" ,
+#                                   nsim=5, breaks = c(200,225,250,275,300,325,350,375,400) )
+```
+
+```{r}
+# crosslevel.curve
+```
+
+```{r}
+crosslevel.curve <- powerCurve(m2, test = fixed("CESD.Z:outDegree.Z", "t"), along ="subID" ,
+                                  nsim=500, breaks = c(300,325,350,375,400,425) )
+```
+
+```{r}
+plot(crosslevel.curve)
+```
+
+```{r}
+crosslevel.curve
+```
+```{r}
+m4<-lmer( confidence.Z ~ outDegree.Z + ( outDegree.Z | subID ) + ( 1 | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+m5 <- extend(m4, along="subID", n=1000)
+```
+
+```{r}
+crosslevel.curve2 <- powerCurve(m5, test = fixed("outDegree.Z", "t"), along ="subID" ,
+                                  nsim=200, breaks = c(25,50,75,100,125,150) )
+```
+
+```{r}
+plot(crosslevel.curve2)
+```
+
+```{r}
+crosslevel.curve2 <- powerCurve(m5, test = fixed("outDegree.Z", "t"), along ="subID" ,
+                                  nsim=200, breaks = c(25,50,75,100,125,150) )
+```
+
+
+
+
+
