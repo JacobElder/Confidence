@@ -308,10 +308,14 @@ longDf <- longDf %>% group_by(traits, valence) %>% summarise(confBT = mean(confi
 longDf$TSmean <- rowMeans(longDf[c("evalBSWV","evalBT")])
 
 longDf$devTS <- abs(longDf$TSmean-longDf$eval)
-longDf$devT <- abs(longDf$evalBT - longDf$eval)
+#longDf$devT <- abs(longDf$evalBT - longDf$eval)
 longDf$devT <- abs(longDf$evalBSWV - longDf$eval)
 ```
 
+
+```{r}
+longDf <- longDf %>% select(-clusterName, -cluster, -between, -eigen, -close, -efficiency, -transitivity, -pageRanka)
+```
 
 
 ```{r}
