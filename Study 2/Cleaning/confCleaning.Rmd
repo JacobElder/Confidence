@@ -314,7 +314,7 @@ longDf$devT <- abs(longDf$evalBSWV - longDf$eval)
 
 
 ```{r}
-longDf <- longDf %>% select(-clusterName, -cluster, -between, -eigen, -close, -efficiency, -transitivity, -pageRanka)
+longDf <- longDf %>% select(-clusterName, -cluster, -between, -eigen, -close, -efficiency, -transitivity, -pageRank)
 ```
 
 
