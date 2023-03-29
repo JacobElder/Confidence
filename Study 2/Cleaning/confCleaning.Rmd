@@ -23,6 +23,8 @@ allTraits$Idx <- 1:296
 ```{r}
 setwd("~/Google Drive/Volumes/")
 posDf <- read.csv("./Research Project/Trait Network_Behaviral/generating network/output/adjacencyMatrix_p.csv")
+rownames(posDf) <- posTraits$trait
+colnames(posDf) <- posTraits$trait
 posMat <- as.matrix(posDf)
 posGraph <- graph.adjacency(posMat)
 
