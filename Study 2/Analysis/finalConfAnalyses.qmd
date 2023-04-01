@@ -702,3 +702,32 @@ CESD.outdeg.Conf.Plot
 
 ggpredict(m, c("CESD","valence")) %>% plot(add.data=T) + labs(title="Raw Data",x="Depressive Symptoms",y="Confidence")
 ```
+
+# Exploratory
+
+## Outdegree Closeness Predicting Confidence
+
+```{r}
+CLOSE.CONF<-lmer(confidence.Z ~ inDegree.Z + scale(outClose) + valence + ( valence + scale(outClose) + inDegree.Z | subID ) + ( 1 | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(CLOSE.CONF)
+summary(CLOSE.CONF)
+```
+
+## Outdegree PageRank Predicting Confidence
+
+```{r}
+PR.CONF<-lmer(confidence.Z ~ inDegree.Z + scale(outPR) + valence + ( valence + scale(outPR) + inDegree.Z | subID ) + ( 1 | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(PR.CONF)
+summary(PR.CONF)
+```
+
+## Betweenness Predicting Confidence
+
+```{r}
+BET.CONF<-lmer(confidence.Z ~ inDegree.Z + scale(between) + valence + ( valence + scale(between) + inDegree.Z | subID ) + ( 1 | traits), data=longDf, control=lmerControl(optimizer="bobyqa",
+                                 optCtrl=list(maxfun=2e5)))
+r2beta(BET.CONF)
+summary(BET.CONF)
+```

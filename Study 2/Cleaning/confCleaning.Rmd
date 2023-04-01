@@ -23,8 +23,8 @@ allTraits$Idx <- 1:296
 ```{r}
 setwd("~/Google Drive/Volumes/")
 posDf <- read.csv("./Research Project/Trait Network_Behaviral/generating network/output/adjacencyMatrix_p.csv")
-rownames(posDf) <- posTraits$trait
-colnames(posDf) <- posTraits$trait
+# rownames(posDf) <- posTraits$trait
+# colnames(posDf) <- posTraits$trait
 posMat <- as.matrix(posDf)
 posGraph <- graph.adjacency(posMat)
 
@@ -316,7 +316,40 @@ longDf$devT <- abs(longDf$evalBSWV - longDf$eval)
 
 
 ```{r}
-longDf <- longDf %>% select(-clusterName, -cluster, -between, -eigen, -close, -efficiency, -transitivity, -pageRank)
+#longDf <- longDf %>% select(-clusterName, -cluster, -between, -eigen, -close, -efficiency, -transitivity, -pageRank)
+longDf <- longDf %>% select(-clusterName, -cluster, -efficiency, -transitivity, -pageRank)
+```
+
+```{r}
+posDf <- read.csv("~/Google Drive/Volumes//Research Project/Trait Network_Behaviral/generating network/output/adjacencyMatrix_p.csv")
+posMat <- as.matrix(posDf)
+posGraph <- graph.adjacency(posMat)
+
+negDf <- read.csv("~/Google Drive/Volumes//Research Project/Trait Network_Behaviral/generating network/output/adjacencyMatrix_n.csv")
+negMat <- as.matrix(negDf)
+negGraph <- graph.adjacency(negMat)
+
+outPR <- c(page.rank(graph.adjacency(t(posMat)))$vector,
+           page.rank(graph.adjacency(t(negMat)))$vector
+           )
+inPR <- c(page.rank(graph.adjacency((posMat)))$vector,
+           page.rank(graph.adjacency((negMat)))$vector
+           )
+hub <- c(hub.score(posGraph)$vector,
+         hub.score(negGraph)$vector
+         )
+auth <- c(authority.score(posGraph)$vector,
+          authority.score(negGraph)$vector
+          )
+outClose <- c(closeness(posGraph, mode="out"),
+              closeness(negGraph, mode="out")
+)
+inClose <- c(closeness(posGraph, mode="in"),
+              closeness(negGraph, mode="in")
+)
+netDF <- data.frame(Idx=1:296, outPR, inPR, hub, auth, outClose, inClose)
+
+longDf <- merge(longDf, netDF, by="Idx")
 ```
 
 
